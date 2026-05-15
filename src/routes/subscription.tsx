@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { apiFetch } from "../lib/api";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface BillingStatus {
   plan: string;
@@ -20,7 +21,10 @@ const PLAN_COLOR: Record<string, string> = {
   pro:   "#7c3aed",
 };
 
-export default function Subscription() {
+export const Route = createFileRoute('/subscription')({
+  component: Subscription,
+})
+function Subscription() {
   const [status, setStatus]     = useState<BillingStatus | null>(null);
   const [loading, setLoading]   = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);

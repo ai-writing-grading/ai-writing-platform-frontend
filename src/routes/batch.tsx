@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "../lib/api";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface GradingResult {
   score: number;
@@ -24,8 +25,10 @@ interface BatchStatus {
   flagged_for_review: number;
   results: BatchItemResult[];
 }
-
-export default function Batch() {
+export const Route = createFileRoute('/batch')({
+  component: Batch,
+})
+function Batch() {
   const [text, setText]           = useState("");
   const [jobId, setJobId]         = useState<string | null>(null);
   const [status, setStatus]       = useState<BatchStatus | null>(null);

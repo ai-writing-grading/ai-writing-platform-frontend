@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { apiFetch } from "../lib/api";
+import { apiFetch } from "../../lib/api";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 interface FeedbackItem {
   category: string;
@@ -47,8 +47,12 @@ const CATEGORY_ICON: Record<string, string> = {
   vocabulary: "📚",
 };
 
-export default function DocumentDetail() {
-  const { id } = useParams<{ id: string }>();
+export const Route = createFileRoute('/documents/$id')({
+  component: DocumentDetails,
+});
+
+function DocumentDetails() {
+  const { id } = Route.useParams();
   const [doc, setDoc]       = useState<DocumentDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState<string | null>(null);

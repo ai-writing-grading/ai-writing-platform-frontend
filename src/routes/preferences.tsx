@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 
 // --- 1. 常量定义 ---
 const MODELS = [
@@ -74,8 +75,10 @@ const SelectionGrid = ({ options, currentValue, onChange, name }: SelectionGridP
   </div>
 );
 
-// --- 4. 主组件 ---
-export default function Preferences() {
+export const Route = createFileRoute('/preferences')({
+  component: Preferences,
+})
+function Preferences() {
   const [model, setModel] = useState(() => localStorage.getItem("preferred_model") || "deepseek-v4-flash");
   const [language, setLanguage] = useState(() => localStorage.getItem("pref_language") || "english");
   const [difficulty, setDifficulty] = useState(() => localStorage.getItem("pref_difficulty") || "intermediate");

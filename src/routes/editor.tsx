@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { apiFetch } from "../lib/api";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface RubricScore {
   dimension: string;
@@ -27,7 +28,11 @@ const GRADE_COLOR: Record<string, string> = {
   A: "#16a34a", B: "#2563eb", C: "#d97706", D: "#ea580c", F: "#dc2626",
 };
 
-export default function Editor() {
+export const Route = createFileRoute('/editor')({
+  component: Editor,
+});
+
+function Editor() {
   const [text, setText]     = useState("");
   const [result, setResult] = useState<GradingResult | null>(null);
   const [loading, setLoading] = useState(false);

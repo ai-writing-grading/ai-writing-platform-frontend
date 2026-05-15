@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "../lib/api";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface Technique {
   title: string;
@@ -38,7 +39,11 @@ function Skeleton() {
   );
 }
 
-export default function Learn() {
+export const Route = createFileRoute('/learn')({
+  component: Learn,
+});
+
+function Learn() {
   const [query, setQuery]           = useState("");
   const [results, setResults]       = useState<Technique[]>([]);
   const [loading, setLoading]       = useState(true);

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { apiFetch } from "../lib/api";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface ReviewItem {
   review_id: string;
@@ -33,7 +34,10 @@ function truncate(s: string, n: number) {
   return s.length > n ? s.slice(0, n) + "…" : s;
 }
 
-export default function Review() {
+export const Route = createFileRoute('/review')({
+  component: Review,
+})
+function Review() {
   const [items, setItems]       = useState<ReviewItem[]>([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);

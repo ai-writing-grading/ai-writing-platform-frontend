@@ -9,14 +9,63 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UploadRouteImport } from './routes/upload'
+import { Route as SubscriptionRouteImport } from './routes/subscription'
+import { Route as ReviewRouteImport } from './routes/review'
+import { Route as PreferencesRouteImport } from './routes/preferences'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LearnRouteImport } from './routes/learn'
+import { Route as EditorRouteImport } from './routes/editor'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BatchRouteImport } from './routes/batch'
 import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as DocumentsIdRouteImport } from './routes/documents/$id'
 
+const UploadRoute = UploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionRoute = SubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewRoute = ReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreferencesRoute = PreferencesRouteImport.update({
+  id: '/preferences',
+  path: '/preferences',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EditorRoute = EditorRouteImport.update({
+  id: '/editor',
+  path: '/editor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BatchRoute = BatchRouteImport.update({
+  id: '/batch',
+  path: '/batch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRouteRoute = AdminRouteRouteImport.update({
@@ -34,46 +83,182 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const DocumentsIdRoute = DocumentsIdRouteImport.update({
+  id: '/documents/$id',
+  path: '/documents/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
+  '/batch': typeof BatchRoute
+  '/dashboard': typeof DashboardRoute
+  '/editor': typeof EditorRoute
+  '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
+  '/preferences': typeof PreferencesRoute
+  '/review': typeof ReviewRoute
+  '/subscription': typeof SubscriptionRoute
+  '/upload': typeof UploadRoute
+  '/documents/$id': typeof DocumentsIdRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/batch': typeof BatchRoute
+  '/dashboard': typeof DashboardRoute
+  '/editor': typeof EditorRoute
+  '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
+  '/preferences': typeof PreferencesRoute
+  '/review': typeof ReviewRoute
+  '/subscription': typeof SubscriptionRoute
+  '/upload': typeof UploadRoute
+  '/documents/$id': typeof DocumentsIdRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteRouteWithChildren
+  '/batch': typeof BatchRoute
+  '/dashboard': typeof DashboardRoute
+  '/editor': typeof EditorRoute
+  '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
+  '/preferences': typeof PreferencesRoute
+  '/review': typeof ReviewRoute
+  '/subscription': typeof SubscriptionRoute
+  '/upload': typeof UploadRoute
+  '/documents/$id': typeof DocumentsIdRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/login' | '/admin/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/batch'
+    | '/dashboard'
+    | '/editor'
+    | '/learn'
+    | '/login'
+    | '/preferences'
+    | '/review'
+    | '/subscription'
+    | '/upload'
+    | '/documents/$id'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/admin'
-  id: '__root__' | '/' | '/admin' | '/login' | '/admin/'
+  to:
+    | '/'
+    | '/batch'
+    | '/dashboard'
+    | '/editor'
+    | '/learn'
+    | '/login'
+    | '/preferences'
+    | '/review'
+    | '/subscription'
+    | '/upload'
+    | '/documents/$id'
+    | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/batch'
+    | '/dashboard'
+    | '/editor'
+    | '/learn'
+    | '/login'
+    | '/preferences'
+    | '/review'
+    | '/subscription'
+    | '/upload'
+    | '/documents/$id'
+    | '/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  BatchRoute: typeof BatchRoute
+  DashboardRoute: typeof DashboardRoute
+  EditorRoute: typeof EditorRoute
+  LearnRoute: typeof LearnRoute
   LoginRoute: typeof LoginRoute
+  PreferencesRoute: typeof PreferencesRoute
+  ReviewRoute: typeof ReviewRoute
+  SubscriptionRoute: typeof SubscriptionRoute
+  UploadRoute: typeof UploadRoute
+  DocumentsIdRoute: typeof DocumentsIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/upload': {
+      id: '/upload'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscription': {
+      id: '/subscription'
+      path: '/subscription'
+      fullPath: '/subscription'
+      preLoaderRoute: typeof SubscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/review': {
+      id: '/review'
+      path: '/review'
+      fullPath: '/review'
+      preLoaderRoute: typeof ReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preferences': {
+      id: '/preferences'
+      path: '/preferences'
+      fullPath: '/preferences'
+      preLoaderRoute: typeof PreferencesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/editor': {
+      id: '/editor'
+      path: '/editor'
+      fullPath: '/editor'
+      preLoaderRoute: typeof EditorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/batch': {
+      id: '/batch'
+      path: '/batch'
+      fullPath: '/batch'
+      preLoaderRoute: typeof BatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -97,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/documents/$id': {
+      id: '/documents/$id'
+      path: '/documents/$id'
+      fullPath: '/documents/$id'
+      preLoaderRoute: typeof DocumentsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -115,7 +307,16 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRouteRoute: AdminRouteRouteWithChildren,
+  BatchRoute: BatchRoute,
+  DashboardRoute: DashboardRoute,
+  EditorRoute: EditorRoute,
+  LearnRoute: LearnRoute,
   LoginRoute: LoginRoute,
+  PreferencesRoute: PreferencesRoute,
+  ReviewRoute: ReviewRoute,
+  SubscriptionRoute: SubscriptionRoute,
+  UploadRoute: UploadRoute,
+  DocumentsIdRoute: DocumentsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

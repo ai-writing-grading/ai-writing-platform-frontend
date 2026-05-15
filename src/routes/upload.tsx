@@ -1,5 +1,6 @@
 import { useState, useRef, DragEvent } from "react";
 import { apiFetch } from "../lib/api";
+import { createFileRoute } from "@tanstack/react-router";
 
 interface UploadResult {
   document_id: string;
@@ -11,7 +12,10 @@ interface UploadResult {
   scoring: { score: number; grade: string };
 }
 
-export default function Upload() {
+export const Route = createFileRoute('/upload')({
+  component: Upload,
+})
+function Upload() {
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);

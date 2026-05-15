@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { apiFetch } from "../lib/api";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -29,8 +29,11 @@ interface Document {
 const GRADE_COLOR: Record<string, string> = {
   A: "#16a34a", B: "#2563eb", C: "#d97706", D: "#ea580c", F: "#dc2626",
 };
+export const Route = createFileRoute('/dashboard')({
+  component: Dashboard,
+})
 
-export default function Dashboard() {
+function Dashboard() {
   const [docs, setDocs]       = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
