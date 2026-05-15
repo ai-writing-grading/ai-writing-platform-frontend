@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate } from "react-router-dom";
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import Editor from "./pages/Editor";
-import Upload from "./pages/Upload";
-import Preferences from "./pages/Preferences";
-import Batch from "./pages/Batch";
-import Learn from "./pages/Learn";
-import Review from "./pages/Review";
-import Login from "./pages/Login";
-import Subscription from "./pages/Subscription";
-import DocumentDetail from "./pages/DocumentDetail";
+import Home from "./components/Home";
+import Dashboard from "./components/Dashboard";
+import Editor from "./components/Editor";
+import Upload from "./components/Upload";
+import Preferences from "./components/Preferences";
+import Batch from "./components/Batch";
+import Learn from "./components/Learn";
+import Review from "./components/Review";
+import Login from "./components/Login";
+import Subscription from "./components/Subscription";
+import DocumentDetail from "./components/DocumentDetail";
 import { getToken, clearToken, apiFetch } from "./lib/api";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
