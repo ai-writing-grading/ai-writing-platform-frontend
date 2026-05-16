@@ -164,7 +164,8 @@ function Dashboard() {
           {docs.map((doc) => (
             <Link
               key={doc.document_id}
-              to={`/documents/${doc.document_id}`}
+              to="/documents/$id" 
+              params={{ id: doc.document_id }}
               style={{
                 border: "1px solid #e5e7eb",
                 borderRadius: "8px",

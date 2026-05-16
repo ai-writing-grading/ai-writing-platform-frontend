@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { setToken } from "../lib/api";
+import { setToken, getUserRole } from "../lib/api";
 import { createFileRoute } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 
 const API = import.meta.env.VITE_API_GATEWAY_URL ?? "http://localhost:8000";
 
@@ -36,7 +36,12 @@ function Login() {
         throw new Error(body.detail ?? `HTTP ${res.status}`);
       }
       setToken(body.access_token);
-      navigate("/dashboard");
+      const role = getUserRole();
+      if (role === "admin") {
+      navigate({ to: "/admin" }); 
+    } else {
+      navigate({ to: "/dashboard" }); 
+    }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {

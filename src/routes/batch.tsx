@@ -55,15 +55,15 @@ function Batch() {
 
     setSubmitting(true);
     try {
-      const jobId = `job-${Date.now()}`;
-      const ts = Date.now();
+      const uniqueId = crypto.randomUUID(); // 生成标准的 UUID，例如 "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+      const jobId = `job-${uniqueId.slice(0, 8)}`;
       const res = await apiFetch("/api/v1/batch/submit", {
         method: "POST",
         body: JSON.stringify({
           job_id: jobId,
           compositions: essays.map((essay, i) => ({
-            composition_id: `comp-${ts}-${i}`,
-            document_id: `doc-${ts}-${i}`,
+            composition_id: `comp-${uniqueId.slice(0, 8)}-${i}`, 
+            document_id: `doc-${uniqueId.slice(0, 8)}-${i}`,
             text: essay,
           })),
         }),

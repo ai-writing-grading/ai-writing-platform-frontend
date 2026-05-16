@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
 import { apiFetch } from "../lib/api";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 
 interface BillingStatus {
   plan: string;
@@ -28,9 +27,9 @@ function Subscription() {
   const [status, setStatus]     = useState<BillingStatus | null>(null);
   const [loading, setLoading]   = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
-  const [params] = useSearchParams();
+  const searchParams = useSearch({ strict: false }) as { sessionId?: string };
+  const { sessionId } = searchParams;
 
-  const sessionId = params.get("session_id");
 
   useEffect(() => {
     apiFetch("/api/v1/billing/status")

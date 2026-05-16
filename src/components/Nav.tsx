@@ -1,4 +1,3 @@
-// src/components/Nav.tsx
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { getToken, clearToken, apiFetch, getUserRole } from "../lib/api";
@@ -6,6 +5,7 @@ import { getToken, clearToken, apiFetch, getUserRole } from "../lib/api";
 export function Nav() {
   const navigate = useNavigate();
   const loggedIn = !!getToken();
+  
   const role = getUserRole(); 
   const isAdmin = role === "admin";
 
@@ -13,14 +13,13 @@ export function Nav() {
   const [quotaBanner, setQuotaBanner] = useState(false);
 
   useEffect(() => {
-    if (!loggedIn) return;
+    if (!loggedIn || isAdmin) return;
     
-    // Admin 可能不需要校验普通用户的 Billing Plan，你可以根据需求调整
     apiFetch("/api/v1/billing/status")
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data) setPlan(data.plan ?? "free"); })
       .catch(() => {});
-  }, [loggedIn]);
+  }, [loggedIn, isAdmin]);
 
   useEffect(() => {
     const handle = () => setQuotaBanner(true);
@@ -30,13 +29,13 @@ export function Nav() {
 
   function logout() {
     clearToken();
-    // TanStack Router 的跳转写法，必须传对象 { to: "/path" }
+    localStorage.removeItem("user_role");
     navigate({ to: "/login" });
   }
 
-  const planLabel = plan
-    ? plan.charAt(0).toUpperCase() + plan.slice(1)
-    : null;
+  const planLabel = plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : null;
+
+  const linkStyle = { color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" };
 
   return (
     <>
@@ -53,23 +52,29 @@ export function Nav() {
         
         {loggedIn && (
           <>
-            {/* 普通用户功能链接 */}
-            <Link to="/dashboard" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Dashboard</Link>
-            <Link to="/editor" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Editor</Link>
-            <Link to="/upload" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Upload</Link>
-            <Link to="/batch" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Batch</Link>
-            <Link to="/learn" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Learn</Link>
-            <Link to="/review" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Review</Link>
-            <Link to="/preferences" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Preferences</Link>
-            <Link to="/subscription" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>
-              {planLabel ? `Plan (${planLabel})` : "Plan"}
-            </Link>
+            {/* 👨‍🎓 普通用户看到的专属菜单 */}
+            {!isAdmin && (
+              <>
+                <Link to="/dashboard" style={linkStyle}>Dashboard</Link>
+                <Link to="/editor" style={linkStyle}>Editor</Link>
+                <Link to="/upload" style={linkStyle}>Upload</Link>
+                <Link to="/batch" style={linkStyle}>Batch</Link>
+                <Link to="/learn" style={linkStyle}>Learn</Link>
+                <Link to="/preferences" style={linkStyle}>Preferences</Link>
+                <Link to="/subscription" style={linkStyle}>
+                  {planLabel ? `Plan (${planLabel})` : "Plan"}
+                </Link>
+              </>
+            )}
 
-            {/* 💡 仅限管理员显示的入口 */}
+            {/* ⚙️ 管理员看到的专属菜单 */}
             {isAdmin && (
-              <div style={{ marginLeft: "1rem", borderLeft: "1px solid #4f46e5", paddingLeft: "1.5rem" }}>
+              <div style={{ display: "flex", gap: "1.5rem", paddingLeft: "1.5rem", marginLeft: "0.5rem" }}>
                 <Link to="/admin" style={{ color: "#fbbf24", fontWeight: "bold", textDecoration: "none", fontSize: "0.95rem" }}>
-                  Admin Portal ⚙️
+                  Dashboard (Admin)
+                </Link>
+                <Link to="/admin/review" style={{ color: "#fbbf24", fontWeight: "bold", textDecoration: "none", fontSize: "0.95rem" }}>
+                  HITL Review
                 </Link>
               </div>
             )}
@@ -88,18 +93,21 @@ export function Nav() {
                 borderRadius: "6px",
                 cursor: "pointer",
                 fontSize: "0.9rem",
+                transition: "all 0.2s"
               }}
+              onMouseOver={(e) => { e.currentTarget.style.background = "rgba(165, 180, 252, 0.1)"; }}
+              onMouseOut={(e) => { e.currentTarget.style.background = "transparent"; }}
             >
               Logout
             </button>
           ) : (
-            <Link to="/login" style={{ color: "#a5b4fc", textDecoration: "none", fontSize: "0.95rem" }}>Sign In</Link>
+            <Link to="/login" style={linkStyle}>Sign In</Link>
           )}
         </div>
       </nav>
 
-      {/* 配额警告横幅保持不变 */}
-      {quotaBanner && (
+      {/* 配额警告横幅 (管理员也不会看到，因为 quotaBanner 不会被触发) */}
+      {quotaBanner && !isAdmin && (
         <div style={{
           background: "#fef3c7",
           borderBottom: "1px solid #f59e0b",

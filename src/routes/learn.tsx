@@ -46,26 +46,53 @@ export const Route = createFileRoute('/learn')({
 function Learn() {
   const [query, setQuery]           = useState("");
   const [results, setResults]       = useState<Technique[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  function fetchTechniques(q: string) {
-    setLoading(true);
-    setError(null);
+  // Refs to track current request status
+  const isRequestPending = useRef(false);
+  const hasLoadedInitialData = useRef(false);
+
+  async function fetchTechniques(q: string, isInitialLoad = false) {
+    if (isRequestPending.current) return;
+    
+    if (!isInitialLoad) {
+      setIsLoading(true);
+      setError(null);
+    } else if (hasLoadedInitialData.current) {
+      // 如果不是首次加载，或者已经加载过数据，则显示加载状态
+      setIsLoading(true);
+      setError(null);
+    }
+    
+    isRequestPending.current = true;
     const effectiveQuery = q.trim() || "writing";
-    apiFetch(`/api/v1/retrieval/techniques?query=${encodeURIComponent(effectiveQuery)}`)
-      .then(async (res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<Technique[]>;
-      })
-      .then((data) => setResults(data))
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : "Failed to load techniques"))
-      .finally(() => setLoading(false));
+    
+    try {
+      const res = await apiFetch(`/api/v1/retrieval/techniques?query=${encodeURIComponent(effectiveQuery)}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
+      const data = await res.json() as Technique[];
+      setResults(data);
+      
+      if (isInitialLoad) {
+        hasLoadedInitialData.current = true;
+        setInitialLoadComplete(true);
+      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to load techniques");
+    } finally {
+      isRequestPending.current = false;
+      setIsLoading(false);
+    }
   }
 
   useEffect(() => {
-    fetchTechniques("");
+    if (!hasLoadedInitialData.current) {
+      fetchTechniques("", true);
+    }
   }, []);
 
   function handleSearch(value: string) {
@@ -73,6 +100,8 @@ function Learn() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => fetchTechniques(value), 400);
   }
+
+  const loading = isLoading || !initialLoadComplete;
 
   return (
     <>

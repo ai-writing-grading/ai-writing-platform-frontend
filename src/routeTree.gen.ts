@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as SubscriptionRouteImport } from './routes/subscription'
-import { Route as ReviewRouteImport } from './routes/review'
 import { Route as PreferencesRouteImport } from './routes/preferences'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LearnRouteImport } from './routes/learn'
@@ -22,6 +21,7 @@ import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as DocumentsIdRouteImport } from './routes/documents/$id'
+import { Route as AdminReviewRouteImport } from './routes/admin/review'
 
 const UploadRoute = UploadRouteImport.update({
   id: '/upload',
@@ -31,11 +31,6 @@ const UploadRoute = UploadRouteImport.update({
 const SubscriptionRoute = SubscriptionRouteImport.update({
   id: '/subscription',
   path: '/subscription',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReviewRoute = ReviewRouteImport.update({
-  id: '/review',
-  path: '/review',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PreferencesRoute = PreferencesRouteImport.update({
@@ -88,6 +83,11 @@ const DocumentsIdRoute = DocumentsIdRouteImport.update({
   path: '/documents/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminReviewRoute = AdminReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -98,9 +98,9 @@ export interface FileRoutesByFullPath {
   '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
   '/preferences': typeof PreferencesRoute
-  '/review': typeof ReviewRoute
   '/subscription': typeof SubscriptionRoute
   '/upload': typeof UploadRoute
+  '/admin/review': typeof AdminReviewRoute
   '/documents/$id': typeof DocumentsIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -112,9 +112,9 @@ export interface FileRoutesByTo {
   '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
   '/preferences': typeof PreferencesRoute
-  '/review': typeof ReviewRoute
   '/subscription': typeof SubscriptionRoute
   '/upload': typeof UploadRoute
+  '/admin/review': typeof AdminReviewRoute
   '/documents/$id': typeof DocumentsIdRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -128,9 +128,9 @@ export interface FileRoutesById {
   '/learn': typeof LearnRoute
   '/login': typeof LoginRoute
   '/preferences': typeof PreferencesRoute
-  '/review': typeof ReviewRoute
   '/subscription': typeof SubscriptionRoute
   '/upload': typeof UploadRoute
+  '/admin/review': typeof AdminReviewRoute
   '/documents/$id': typeof DocumentsIdRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -145,9 +145,9 @@ export interface FileRouteTypes {
     | '/learn'
     | '/login'
     | '/preferences'
-    | '/review'
     | '/subscription'
     | '/upload'
+    | '/admin/review'
     | '/documents/$id'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -159,9 +159,9 @@ export interface FileRouteTypes {
     | '/learn'
     | '/login'
     | '/preferences'
-    | '/review'
     | '/subscription'
     | '/upload'
+    | '/admin/review'
     | '/documents/$id'
     | '/admin'
   id:
@@ -174,9 +174,9 @@ export interface FileRouteTypes {
     | '/learn'
     | '/login'
     | '/preferences'
-    | '/review'
     | '/subscription'
     | '/upload'
+    | '/admin/review'
     | '/documents/$id'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -190,7 +190,6 @@ export interface RootRouteChildren {
   LearnRoute: typeof LearnRoute
   LoginRoute: typeof LoginRoute
   PreferencesRoute: typeof PreferencesRoute
-  ReviewRoute: typeof ReviewRoute
   SubscriptionRoute: typeof SubscriptionRoute
   UploadRoute: typeof UploadRoute
   DocumentsIdRoute: typeof DocumentsIdRoute
@@ -210,13 +209,6 @@ declare module '@tanstack/react-router' {
       path: '/subscription'
       fullPath: '/subscription'
       preLoaderRoute: typeof SubscriptionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/review': {
-      id: '/review'
-      path: '/review'
-      fullPath: '/review'
-      preLoaderRoute: typeof ReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/preferences': {
@@ -289,14 +281,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocumentsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/review': {
+      id: '/admin/review'
+      path: '/review'
+      fullPath: '/admin/review'
+      preLoaderRoute: typeof AdminReviewRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
   }
 }
 
 interface AdminRouteRouteChildren {
+  AdminReviewRoute: typeof AdminReviewRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminReviewRoute: AdminReviewRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -313,7 +314,6 @@ const rootRouteChildren: RootRouteChildren = {
   LearnRoute: LearnRoute,
   LoginRoute: LoginRoute,
   PreferencesRoute: PreferencesRoute,
-  ReviewRoute: ReviewRoute,
   SubscriptionRoute: SubscriptionRoute,
   UploadRoute: UploadRoute,
   DocumentsIdRoute: DocumentsIdRoute,
