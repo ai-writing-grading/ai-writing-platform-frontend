@@ -94,7 +94,22 @@ function Editor() {
         const body = await res.json().catch(() => ({}));
         throw new Error((body as { detail?: string }).detail ?? `HTTP ${res.status}`);
       }
-      setResult(await res.json());
+      const data = await res.json() as GradingResult;
+      setResult(data);
+      // Save to pipeline history so Dashboard can show it (fire-and-forget)
+      apiFetch("/api/v1/pipelines/documents/record", {
+        method: "POST",
+        body: JSON.stringify({
+          document_id: data.document_id,
+          text,
+          score: data.score,
+          grade: data.grade,
+          rubric: data.rubric,
+          overall_feedback: data.overall_feedback,
+          improvement_tips: data.improvement_tips,
+          model_used: data.model_used,
+        }),
+      }).catch(() => {});
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
