@@ -1,27 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 // --- 1. 常量定义 ---
 const MODELS = [
   { id: "deepseek-v4-flash", label: "DeepSeek V4 Flash", note: "Default — fast and cost-efficient" },
   { id: "deepseek-v4-pro",   label: "DeepSeek V4 Pro",   note: "Most capable, higher latency" },
-];
+] as const;
 
 const LANGUAGES = [
   { id: "english", label: "English Composition", note: "Learn English essay writing" },
   { id: "chinese", label: "Chinese Composition", note: "学习中文作文写作 (起承转合)" },
-];
+] as const;
 
 const DIFFICULTIES = [
   { id: "beginner", label: "Beginner", note: "Primary school level" },
   { id: "intermediate", label: "Intermediate", note: "Secondary school level" },
   { id: "advanced", label: "Advanced", note: "High school / Professional level" },
-];
+] as const;
 
 const MODES = [
   { id: "standard", label: "Standard AI Grading", note: "General feedback and scoring" },
   { id: "technique", label: "Technique Focus", note: "Focus on 'Show-Don't-Tell' and specific techniques" },
-];
+] as const;
+
+// 从常量中提取白名单（类型安全）
+const VALID_MODELS = MODELS.map(m => m.id) as readonly string[];
+const VALID_LANGUAGES = LANGUAGES.map(l => l.id) as readonly string[];
+const VALID_DIFFICULTIES = DIFFICULTIES.map(d => d.id) as readonly string[];
+const VALID_MODES = MODES.map(m => m.id) as readonly string[];
 
 // --- 2. TypeScript 类型定义 ---
 interface OptionType {
@@ -31,10 +37,23 @@ interface OptionType {
 }
 
 interface SelectionGridProps {
-  options: OptionType[];
+  options: readonly OptionType[];
   currentValue: string;
   onChange: (value: string) => void;
   name: string;
+}
+
+// 工具函数：安全读取 localStorage
+function getSafeStorageValue(key: string, validValues: readonly string[], defaultValue: string): string {
+  try {
+    const stored = localStorage.getItem(key);
+    if (stored && validValues.includes(stored)) {
+      return stored;
+    }
+  } catch (e) {
+    console.warn(`Failed to read ${key} from localStorage:`, e);
+  }
+  return defaultValue;
 }
 
 const SelectionGrid = ({ options, currentValue, onChange, name }: SelectionGridProps) => (
@@ -76,60 +95,52 @@ const SelectionGrid = ({ options, currentValue, onChange, name }: SelectionGridP
 
 export const Route = createFileRoute('/preferences')({
   component: Preferences,
-})
+});
 
 function Preferences() {
-  const [model, setModel] = useState(() => {
-    const stored = localStorage.getItem("preferred_model") || "deepseek-v4-flash";
-    const validModels = ["deepseek-v4-flash", "deepseek-v4-pro"];
-    return validModels.includes(stored) ? stored : "deepseek-v4-flash";
-  });
+  // 初始化状态时使用安全读取函数
+  const [model, setModel] = useState(() => 
+    getSafeStorageValue("preferred_model", VALID_MODELS, "deepseek-v4-flash")
+  );
   
-  const [language, setLanguage] = useState(() => {
-    const stored = localStorage.getItem("pref_language") || "english";
-    const validLanguages = ["english", "chinese"];
-    return validLanguages.includes(stored) ? stored : "english";
-  });
+  const [language, setLanguage] = useState(() => 
+    getSafeStorageValue("pref_language", VALID_LANGUAGES, "english")
+  );
   
-  const [difficulty, setDifficulty] = useState(() => {
-    const stored = localStorage.getItem('pref_difficulty') || 'intermediate';
-    const validDifficulties = ['beginner', 'intermediate', 'advanced'];
-    return validDifficulties.includes(stored) ? stored : 'intermediate';
-  });
+  const [difficulty, setDifficulty] = useState(() => 
+    getSafeStorageValue("pref_difficulty", VALID_DIFFICULTIES, "intermediate")
+  );
   
-  const [mode, setMode] = useState(() => {
-    const stored = localStorage.getItem("pref_mode") || "standard";
-    const validModes = ["standard", "technique"];
-    return validModes.includes(stored) ? stored : "standard";
-  });
+  const [mode, setMode] = useState(() => 
+    getSafeStorageValue("pref_mode", VALID_MODES, "standard")
+  );
 
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem("preferred_model", model);
-    localStorage.setItem("pref_language", language);
-    localStorage.setItem("pref_difficulty", difficulty);
-    localStorage.setItem("pref_mode", mode);
-  }, [model, language, difficulty, mode]); // 添加依赖数组
-
   function handleSave() {
-    const validModels = ["deepseek-v4-flash", "deepseek-v4-pro"];
-    const validLanguages = ["english", "chinese"];
-    const validDifficulties = ['beginner', 'intermediate', 'advanced'];
-    const validModes = ["standard", "technique"];
+    // 白名单验证（编译时保证类型安全）
+    const safeModel = VALID_MODELS.includes(model) ? model : "deepseek-v4-flash";
+    const safeLanguage = VALID_LANGUAGES.includes(language) ? language : "english";
+    const safeDifficulty = VALID_DIFFICULTIES.includes(difficulty) ? difficulty : "intermediate";
+    const safeMode = VALID_MODES.includes(mode) ? mode : "standard";
 
-    const sanitizedModel = validModels.includes(model) ? model : "deepseek-v4-flash";
-    const sanitizedLanguage = validLanguages.includes(language) ? language : "english";
-    const sanitizedDifficulty = validDifficulties.includes(difficulty) ? difficulty : "intermediate";
-    const sanitizedMode = validModes.includes(mode) ? mode : "standard";
-
-    localStorage.setItem("preferred_model", sanitizedModel);
-    localStorage.setItem("pref_language", sanitizedLanguage);
-    localStorage.setItem("pref_difficulty", sanitizedDifficulty);
-    localStorage.setItem("pref_mode", sanitizedMode);
-
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    try {
+      localStorage.setItem("preferred_model", safeModel);
+      localStorage.setItem("pref_language", safeLanguage);
+      localStorage.setItem("pref_difficulty", safeDifficulty);
+      localStorage.setItem("pref_mode", safeMode);
+      
+      // 如果验证失败导致回退，同步更新 UI
+      setModel(safeModel);
+      setLanguage(safeLanguage);
+      setDifficulty(safeDifficulty);
+      setMode(safeMode);
+      
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (error) {
+      console.error("Failed to save preferences:", error);
+    }
   }
 
   return (

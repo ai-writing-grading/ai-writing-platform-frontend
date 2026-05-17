@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "../lib/api";
 import { createFileRoute } from "@tanstack/react-router";
+import { sanitizeTextInput } from "../utils/sanitize";
 
 interface GradingResult {
   score: number;
@@ -50,8 +51,7 @@ function Batch() {
     setJobId(null);
 
     // 对 textarea 输入进行净化，防止潜在的注入
-    // eslint-disable-next-line no-control-regex
-    const sanitizedText =  text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+    const sanitizedText =  sanitizeTextInput(text);
     
     const essays = sanitizedText.split("---")
       .map((s) => s.trim())
@@ -137,8 +137,7 @@ function Batch() {
           value={text}
           onChange={(e) => {
             // 在设置值之前进行净化
-            // eslint-disable-next-line no-control-regex
-            const sanitizedValue = e.target.value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+            const sanitizedValue = sanitizeTextInput(e.target.value);
             setText(sanitizedValue);
           }}
           rows={12}
