@@ -25,9 +25,11 @@ interface BatchStatus {
   flagged_for_review: number;
   results: BatchItemResult[];
 }
+
 export const Route = createFileRoute('/batch')({
   component: Batch,
 })
+
 function Batch() {
   const [text, setText]           = useState("");
   const [jobId, setJobId]         = useState<string | null>(null);
@@ -47,26 +49,46 @@ function Batch() {
     setStatus(null);
     setJobId(null);
 
-    const essays = text.split("---").map((s) => s.trim()).filter(Boolean);
+    // 对 textarea 输入进行净化，防止潜在的注入
+    // eslint-disable-next-line no-control-regex
+    const sanitizedText =  text.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+    
+    const essays = sanitizedText.split("---")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 50); // 限制最大数量防止滥用
+
     if (essays.length === 0) {
       setError('No essays found. Separate essays with "---".');
       return;
     }
 
+    // 验证每篇作文长度
+    for (const essay of essays) {
+      if (essay.length > 10000) { // 限制单篇作文最大长度
+        setError('Each essay must be less than 10,000 characters.');
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
-      const uniqueId = crypto.randomUUID(); // 生成标准的 UUID，例如 "36b8f84d-df4e-4d49-b662-bcde71a8764f"
+      const uniqueId = crypto.randomUUID(); 
       const jobId = `job-${uniqueId.slice(0, 8)}`;
+      
+      // 修复：对发送到后端的数据进行验证
+      const requestBody = {
+        job_id: jobId,
+        compositions: essays.map((essay, i) => ({
+          composition_id: `comp-${uniqueId.slice(0, 8)}-${i}`, 
+          document_id: `doc-${uniqueId.slice(0, 8)}-${i}`,
+          text: essay, // 已经过上面的净化
+        })),
+      };
+
       const res = await apiFetch("/api/v1/batch/submit", {
         method: "POST",
-        body: JSON.stringify({
-          job_id: jobId,
-          compositions: essays.map((essay, i) => ({
-            composition_id: `comp-${uniqueId.slice(0, 8)}-${i}`, 
-            document_id: `doc-${uniqueId.slice(0, 8)}-${i}`,
-            text: essay,
-          })),
-        }),
+        body: JSON.stringify(requestBody),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json() as BatchStatus;
@@ -113,7 +135,12 @@ function Batch() {
       <div style={{ marginBottom: "1rem" }}>
         <textarea
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            // 在设置值之前进行净化
+            // eslint-disable-next-line no-control-regex
+            const sanitizedValue = e.target.value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, '');
+            setText(sanitizedValue);
+          }}
           rows={12}
           style={{
             width: "100%",

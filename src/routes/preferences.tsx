@@ -37,7 +37,6 @@ interface SelectionGridProps {
   name: string;
 }
 
-// --- 3. 子组件提取到外部，避免 Cascading renders ---
 const SelectionGrid = ({ options, currentValue, onChange, name }: SelectionGridProps) => (
   <div style={{ display: "grid", gap: "0.6rem" }}>
     {options.map((opt) => {
@@ -78,26 +77,56 @@ const SelectionGrid = ({ options, currentValue, onChange, name }: SelectionGridP
 export const Route = createFileRoute('/preferences')({
   component: Preferences,
 })
+
 function Preferences() {
-  const [model, setModel] = useState(() => localStorage.getItem("preferred_model") || "deepseek-v4-flash");
-  const [language, setLanguage] = useState(() => localStorage.getItem("pref_language") || "english");
-  const [difficulty, setDifficulty] = useState(() => localStorage.getItem("pref_difficulty") || "intermediate");
-  const [mode, setMode] = useState(() => localStorage.getItem("pref_mode") || "standard");
+  const [model, setModel] = useState(() => {
+    const stored = localStorage.getItem("preferred_model") || "deepseek-v4-flash";
+    const validModels = ["deepseek-v4-flash", "deepseek-v4-pro"];
+    return validModels.includes(stored) ? stored : "deepseek-v4-flash";
+  });
   
+  const [language, setLanguage] = useState(() => {
+    const stored = localStorage.getItem("pref_language") || "english";
+    const validLanguages = ["english", "chinese"];
+    return validLanguages.includes(stored) ? stored : "english";
+  });
+  
+  const [difficulty, setDifficulty] = useState(() => {
+    const stored = localStorage.getItem('pref_difficulty') || 'intermediate';
+    const validDifficulties = ['beginner', 'intermediate', 'advanced'];
+    return validDifficulties.includes(stored) ? stored : 'intermediate';
+  });
+  
+  const [mode, setMode] = useState(() => {
+    const stored = localStorage.getItem("pref_mode") || "standard";
+    const validModes = ["standard", "technique"];
+    return validModes.includes(stored) ? stored : "standard";
+  });
+
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem("preferred_model")) localStorage.setItem("preferred_model", model);
-    if (!localStorage.getItem("pref_language")) localStorage.setItem("pref_language", language);
-    if (!localStorage.getItem("pref_difficulty")) localStorage.setItem("pref_difficulty", difficulty);
-    if (!localStorage.getItem("pref_mode")) localStorage.setItem("pref_mode", mode);
-  }, [model, language, difficulty, mode]); // 加上依赖数组，符合 Hooks 规范
-
-  function handleSave() {
     localStorage.setItem("preferred_model", model);
     localStorage.setItem("pref_language", language);
     localStorage.setItem("pref_difficulty", difficulty);
     localStorage.setItem("pref_mode", mode);
+  }, [model, language, difficulty, mode]); // 添加依赖数组
+
+  function handleSave() {
+    const validModels = ["deepseek-v4-flash", "deepseek-v4-pro"];
+    const validLanguages = ["english", "chinese"];
+    const validDifficulties = ['beginner', 'intermediate', 'advanced'];
+    const validModes = ["standard", "technique"];
+
+    const sanitizedModel = validModels.includes(model) ? model : "deepseek-v4-flash";
+    const sanitizedLanguage = validLanguages.includes(language) ? language : "english";
+    const sanitizedDifficulty = validDifficulties.includes(difficulty) ? difficulty : "intermediate";
+    const sanitizedMode = validModes.includes(mode) ? mode : "standard";
+
+    localStorage.setItem("preferred_model", sanitizedModel);
+    localStorage.setItem("pref_language", sanitizedLanguage);
+    localStorage.setItem("pref_difficulty", sanitizedDifficulty);
+    localStorage.setItem("pref_mode", sanitizedMode);
 
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
