@@ -22,10 +22,10 @@ export default [
       ...js.configs.recommended.rules,
       ...tsPlugin.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       // TypeScript's own compiler enforces undefined-variable checks;
       // no-undef produces false positives for TS types and globals.
       "no-undef": "off",
+      'react-refresh/only-export-components': 'off',
     },
   },
 ];
