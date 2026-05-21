@@ -22,29 +22,33 @@ ai-writing-platform-frontend/
 
 ### Pages
 
-| Route | Component | Description |
-|-------|-----------|-------------|
-| `/` | `Home` | Landing / welcome screen |
-| `/login` | `Login` | JWT authentication |
-| `/dashboard` | `Dashboard` | Usage statistics and recent documents |
-| `/editor` | `Editor` | AI-assisted writing editor |
-| `/review` | `Review` | Human-in-the-loop review queue |
-| `/batch` | `Batch` | Batch document processing |
-| `/upload` | `Upload` | Document upload (PDF / DOCX) |
-| `/learn` | `Learn` | Knowledge base / suggestions |
-| `/preferences` | `Preferences` | User settings |
-| `/subscription` | `Subscription` | Stripe billing management |
+
+| Route           | Component      | Description                           |
+| --------------- | -------------- | ------------------------------------- |
+| `/`             | `Home`         | Landing / welcome screen              |
+| `/login`        | `Login`        | JWT authentication                    |
+| `/dashboard`    | `Dashboard`    | Usage statistics and recent documents |
+| `/editor`       | `Editor`       | AI-assisted writing editor            |
+| `/review`       | `Review`       | Human-in-the-loop review queue        |
+| `/batch`        | `Batch`        | Batch document processing             |
+| `/upload`       | `Upload`       | Document upload (PDF / DOCX)          |
+| `/learn`        | `Learn`        | Knowledge base / suggestions          |
+| `/preferences`  | `Preferences`  | User settings                         |
+| `/subscription` | `Subscription` | Stripe billing management             |
+
 
 ### Tech Stack
 
-| Layer | Choice |
-|-------|--------|
-| Framework | React 18 + TypeScript |
-| Build tool | Vite 5 |
-| Router | React Router DOM 6 |
-| Charts | Recharts |
-| Linting | ESLint + TypeScript ESLint |
-| Runtime | Nginx Alpine (port 3000) |
+
+| Layer      | Choice                     |
+| ---------- | -------------------------- |
+| Framework  | React 18 + TypeScript      |
+| Build tool | Vite 5                     |
+| Router     | React Router DOM 6         |
+| Charts     | Recharts                   |
+| Linting    | ESLint + TypeScript ESLint |
+| Runtime    | Nginx Alpine (port 3000)   |
+
 
 The frontend has **no direct database or AI dependencies**. All data flows through the single API Gateway at `VITE_API_GATEWAY_URL`.
 
@@ -130,9 +134,11 @@ This brings up all backend microservices alongside the frontend.
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
+
+| Variable               | Default                 | Description                         |
+| ---------------------- | ----------------------- | ----------------------------------- |
 | `VITE_API_GATEWAY_URL` | `http://localhost:8000` | Base URL of the backend API Gateway |
+
 
 ---
 
@@ -143,3 +149,5 @@ The GitHub Actions workflow (`.github/workflows/ci.yml` in the backend repo) run
 1. `npm run lint` — ESLint with zero warnings
 2. `tsc && npm run build` — TypeScript compile + Vite production build
 3. Docker image smoke test
+4. 2025
+
