@@ -32,7 +32,7 @@ export const Route = createFileRoute('/editor')({
   component: Editor,
 });
 
-function Editor() {
+export function Editor() {
   const [text, setText]     = useState("");
   const [result, setResult] = useState<GradingResult | null>(null);
   const [loading, setLoading] = useState(false);
