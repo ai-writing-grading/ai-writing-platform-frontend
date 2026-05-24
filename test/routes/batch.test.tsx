@@ -1,192 +1,129 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
-jest.mock('@/lib/api', () => ({
+// 引入真实的组件和需要 Mock 的依赖
+import { Batch } from '../../src/routes/batch'; 
+import { apiFetch } from '../../src/lib/api'; 
+
+// 1. Mock TanStack Router
+jest.mock('@tanstack/react-router', () => ({
+  createFileRoute: () => () => ({}),
+  useRouter: () => ({ navigate: jest.fn() }),
+}));
+
+// 2. Mock 我们的 API 请求函数
+jest.mock('../../src/lib/api', () => ({
   apiFetch: jest.fn(),
 }));
 
-jest.mock('@tanstack/react-router', () => ({
-  createFileRoute: () => ({}),
-}));
-
-jest.mock('@/utils/sanitize', () => ({
+// 3. Mock 净化函数
+jest.mock('../../src/utils/sanitize', () => ({
   sanitizeTextInput: (text: string) => text,
 }));
 
-describe('Batch Page', () => {
+describe('Batch Page Real Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should render textarea for batch input', () => {
-    const textarea = document.createElement('textarea');
-    textarea.placeholder = 'Paste essays separated by ---';
-    expect(textarea).toBeInstanceOf(HTMLTextAreaElement);
-  });
-
-  it('should accept batch text input', () => {
-    const textarea = document.createElement('textarea');
-    const essays = 'Essay 1\n---\nEssay 2\n---\nEssay 3';
-    textarea.value = essays;
-    expect(textarea.value).toContain('---');
-  });
-
-  it('should parse essays separated by ---', () => {
-    const text = 'Essay 1\n---\nEssay 2\n---\nEssay 3';
-    const essays = text.split('---').map((s) => s.trim()).filter(Boolean);
-    expect(essays).toHaveLength(3);
-  });
-
-  it('should limit maximum number of essays to 50', () => {
-    const essays = Array(60)
-      .fill('essay')
-      .join('\n---\n')
-      .split('---')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 50);
-
-    expect(essays.length).toBeLessThanOrEqual(50);
-  });
-
-  it('should validate individual essay length (max 10000 chars)', () => {
-    const longEssay = 'a'.repeat(10001);
-    const isValid = longEssay.length <= 10000;
-    expect(isValid).toBe(false);
-
-    const validEssay = 'a'.repeat(9999);
-    const isValid2 = validEssay.length <= 10000;
-    expect(isValid2).toBe(true);
-  });
-
-  it('should require at least one essay', () => {
-    const essays = [];
-    const isValid = essays.length > 0;
-    expect(isValid).toBe(false);
-  });
-
-  it('should generate job ID', () => {
-    const jobId = `job-${Math.random().toString(36).substr(2, 8)}`;
-    expect(jobId).toMatch(/^job-[a-z0-9]{8}$/);
-  });
-
-  it('should track batch submission state', () => {
-    let submitting = false;
-    let jobId: string | null = null;
-
-    submitting = true;
-    jobId = 'job-12345';
-
-    expect(submitting).toBe(true);
-    expect(jobId).toBeTruthy();
-  });
-
-  it('should display batch status', () => {
-    const status = {
-      job_id: 'job-12345',
-      status: 'running' as const,
-      total: 10,
-      completed: 5,
-      cached_hits: 2,
-      flagged_for_review: 1,
-    };
-
-    expect(status.job_id).toBeTruthy();
-    expect(status.status).toBe('running');
-    expect(status.completed).toBeLessThanOrEqual(status.total);
-  });
-
-  it('should show progress percentage', () => {
-    const total = 10;
-    const completed = 5;
-    const percentage = (completed / total) * 100;
-
-    expect(percentage).toBe(50);
-  });
-
-  it('should handle different batch statuses', () => {
-    const statuses = ['queued', 'running', 'completed', 'failed'] as const;
+  it('should render textarea and submit button initially', () => {
+    render(<Batch />);
     
-    statuses.forEach((status) => {
-      expect(['queued', 'running', 'completed', 'failed']).toContain(status);
+    const textarea = screen.getByPlaceholderText(/Essay one text here/i); 
+    const button = screen.getByRole('button', { name: /Submit Batch/i });
+
+    expect(textarea).toBeInTheDocument();
+    expect(button).toBeInTheDocument();
+  });
+
+  it('should display error when submitting empty essays', async () => {
+    render(<Batch />);
+    
+    const button = screen.getByRole('button', { name: /Submit Batch/i });
+    fireEvent.click(button);
+
+    // 💡 修复：使用 findByText 等待 React 异步渲染错误信息
+    expect(await screen.findByText(/No essays found/i)).toBeInTheDocument();
+  });
+
+  it('should display error when an essay exceeds 10,000 characters', async () => {
+    render(<Batch />);
+    
+    const textarea = screen.getByRole('textbox');
+    const button = screen.getByRole('button', { name: /Submit Batch/i });
+
+    fireEvent.change(textarea, { target: { value: 'A'.repeat(10001) } });
+    fireEvent.click(button);
+
+    // 💡 修复：使用 findByText 等待报错出现
+    expect(await screen.findByText(/Each essay must be less than 10,000 characters/i)).toBeInTheDocument();
+  });
+
+  it('should call submit API and start polling on valid input', async () => {
+    (apiFetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ job_id: 'job-1234', status: 'queued', completed: 0, total: 2, results: [] }),
     });
+
+    render(<Batch />);
+    
+    const textarea = screen.getByRole('textbox');
+    const button = screen.getByRole('button', { name: /Submit Batch/i });
+
+    fireEvent.change(textarea, { target: { value: 'Test essay 1\n---\nTest essay 2' } });
+    fireEvent.click(button);
+
+    // 💡 修复：findByText 会自动等待异步更新，不再报找不到元素的错
+    expect(await screen.findByText(/job-1234/i)).toBeInTheDocument();
+    expect(screen.getByText(/queued/i)).toBeInTheDocument();
+    expect(apiFetch).toHaveBeenCalledTimes(1);
   });
 
-  it('should display individual essay results', () => {
-    const result = {
-      composition_id: 'comp-123',
-      document_id: 'doc-456',
-      status: 'completed',
-      result: {
-        score: 85,
-        grade: 'B',
-        overall_feedback: 'Good work',
-      },
-    };
+  it('should render results table when polling is completed', async () => {
+    (apiFetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ 
+        job_id: 'job-5678', 
+        status: 'completed', 
+        completed: 1, 
+        total: 1, 
+        cached_hits: 1,
+        flagged_for_review: 0,
+        results: [{
+          composition_id: 'comp-1',
+          status: 'completed',
+          result: { score: 92, grade: 'A' }
+        }] 
+      }),
+    });
 
-    expect(result.composition_id).toBeTruthy();
-    expect(result.status).toBe('completed');
-    expect(result.result?.score).toBeGreaterThan(0);
+    render(<Batch />);
+    
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Great essay!' } });
+    fireEvent.click(screen.getByRole('button', { name: /Submit Batch/i }));
+
+    // 💡 修复点：因为有多个 completed，改用 findAllByText
+    const completedElements = await screen.findAllByText(/completed/i);
+    expect(completedElements.length).toBeGreaterThan(0);
+
+    // 此时 UI 已经更新完毕，可以直接用 getByText 断言表格内容
+    expect(screen.getByText(/Cache hits: 1/i)).toBeInTheDocument();
+    expect(screen.getByText(/92\/100/i)).toBeInTheDocument();
+    expect(screen.getByText(/A/)).toBeInTheDocument();
   });
 
-  it('should handle essay-level errors', () => {
-    const result = {
-      composition_id: 'comp-123',
-      status: 'failed',
-      error: 'Processing failed',
-    };
+  it('should handle API submission errors gracefully', async () => {
+    (apiFetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    });
 
-    expect(result.error).toBeTruthy();
-  });
+    render(<Batch />);
+    
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Will fail' } });
+    fireEvent.click(screen.getByRole('button', { name: /Submit Batch/i }));
 
-  it('should sanitize text input', () => {
-    const text = 'Essay with \x00 control \x1F characters';
-    const sanitized = text; // Would be sanitized by sanitizeTextInput
-    expect(sanitized).toBeTruthy();
-  });
-
-  it('should poll for batch status updates', () => {
-    let completed = false;
-    const pollInterval = setInterval(() => {
-      completed = true;
-      clearInterval(pollInterval);
-    }, 100);
-
-    expect(typeof pollInterval).toBe('number');
-  });
-
-  it('should cleanup interval on unmount', () => {
-    const intervalId = setInterval(() => {
-      // Mock interval
-    }, 100);
-
-    clearInterval(intervalId);
-    // Interval should be cleared
-    expect(intervalId).toBeTruthy();
-  });
-
-  it('should handle submission errors', () => {
-    const error = 'Submission failed';
-    expect(error).toContain('failed');
-  });
-
-  it('should track cached hits', () => {
-    const status = {
-      cached_hits: 3,
-      total: 10,
-    };
-
-    const cachePercentage = (status.cached_hits / status.total) * 100;
-    expect(cachePercentage).toBe(30);
-  });
-
-  it('should track flagged items for review', () => {
-    const status = {
-      flagged_for_review: 2,
-      total: 10,
-    };
-
-    expect(status.flagged_for_review).toBeGreaterThan(0);
-    expect(status.flagged_for_review).toBeLessThanOrEqual(status.total);
+    // 💡 修复：使用 findByText 等待 catch 里的 setError 渲染完毕
+    expect(await screen.findByText(/HTTP 500/i)).toBeInTheDocument();
   });
 });

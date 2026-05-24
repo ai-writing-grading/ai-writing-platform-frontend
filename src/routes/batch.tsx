@@ -31,7 +31,7 @@ export const Route = createFileRoute('/batch')({
   component: Batch,
 })
 
-function Batch() {
+export function Batch() {
   const [text, setText]           = useState("");
   const [jobId, setJobId]         = useState<string | null>(null);
   const [status, setStatus]       = useState<BatchStatus | null>(null);
