@@ -33,7 +33,7 @@ export const Route = createFileRoute('/dashboard')({
   component: Dashboard,
 })
 
-function Dashboard() {
+export function Dashboard() {
   const [docs, setDocs]       = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
