@@ -2,122 +2,186 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-// Mock the API module
-jest.mock('@/lib/api', () => ({
-  apiFetch: jest.fn(),
-  getToken: jest.fn(),
+import { Login } from '../../src/routes/login';
+import * as api from '../../src/lib/api';
+
+const mockNavigate = jest.fn();
+
+jest.mock('../../src/lib/api', () => ({
   setToken: jest.fn(),
-  clearToken: jest.fn(),
   getUserRole: jest.fn(),
 }));
 
 jest.mock('@tanstack/react-router', () => ({
-  createFileRoute: (path: string) => ({
-    component: jest.fn(),
-  }),
-  useNavigate: () => jest.fn(),
+  createFileRoute: () => () => ({}),
+  useNavigate: () => mockNavigate,
 }));
 
-describe('Login Page', () => {
+describe('Login Page Real Tests', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+
+    (api.getUserRole as jest.Mock).mockReturnValue('user');
+
+    global.fetch = jest.fn();
   });
 
-  it('renders login form with email and password fields', () => {
-    // Component logic test - form structure validation
-    const formElements = [
-      { label: 'Email input', selector: 'input[type="email"]' },
-      { label: 'Password input', selector: 'input[type="password"]' },
-    ];
+  function getInputs() {
+    const emailInput = document.querySelector('input[type="email"]') as HTMLInputElement;
+    const passwordInput = document.querySelector('input[type="password"]') as HTMLInputElement;
+    return { emailInput, passwordInput };
+  }
 
-    // Test form structure is valid
-    const form = document.createElement('form');
-    const emailInput = document.createElement('input');
-    emailInput.type = 'email';
-    emailInput.required = true;
-    form.appendChild(emailInput);
+  async function fillForm() {
+    const { emailInput, passwordInput } = getInputs();
+    await userEvent.type(emailInput, 'test@test.com');
+    await userEvent.type(passwordInput, '123456');
+  }
 
-    const passwordInput = document.createElement('input');
-    passwordInput.type = 'password';
-    passwordInput.required = true;
-    form.appendChild(passwordInput);
+  function submitForm() {
+    const form = document.querySelector('form')!;
+    fireEvent.submit(form);
+  }
 
-    expect(form.querySelectorAll('input[type="email"]')).toHaveLength(1);
-    expect(form.querySelectorAll('input[type="password"]')).toHaveLength(1);
+  it('renders email and password inputs', () => {
+    render(<Login />);
+
+    const { emailInput, passwordInput } = getInputs();
+
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
   });
 
-  it('validates email format', () => {
-    const emailInput = document.createElement('input');
-    emailInput.type = 'email';
-    emailInput.value = 'invalid-email';
+  it('allows user to type in inputs', async () => {
+    render(<Login />);
 
-    // HTML5 validation
-    expect(emailInput.validity.valid).toBe(false);
+    const { emailInput, passwordInput } = getInputs();
 
-    emailInput.value = 'valid@example.com';
-    expect(emailInput.type).toBe('email');
+    await userEvent.type(emailInput, 'test@test.com');
+    await userEvent.type(passwordInput, '123456');
+
+    expect(emailInput.value).toBe('test@test.com');
+    expect(passwordInput.value).toBe('123456');
   });
 
-  it('handles form submission', async () => {
-    const handleSubmit = jest.fn((e: React.FormEvent) => {
-      e.preventDefault();
+  it('submits login and navigates to dashboard on success', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ access_token: 'abc-token' }),
     });
 
-    const form = document.createElement('form');
-    form.onsubmit = handleSubmit as any;
+    render(<Login />);
 
-    const submitEvent = new Event('submit', { bubbles: true });
-    form.dispatchEvent(submitEvent);
+    await fillForm();
+    submitForm();
 
-    expect(handleSubmit).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(api.setToken).toHaveBeenCalledWith('abc-token');
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/dashboard' });
+    });
   });
 
-  it('toggles between login and register tabs', () => {
-    const tabs = ['login', 'register'];
-    let activeTab = tabs[0];
+  it('navigates to admin when role is admin', async () => {
+    (api.getUserRole as jest.Mock).mockReturnValue('admin');
 
-    const setTab = (tab: string) => {
-      activeTab = tab;
-    };
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ access_token: 'admin-token' }),
+    });
 
-    setTab('register');
-    expect(activeTab).toBe('register');
+    render(<Login />);
 
-    setTab('login');
-    expect(activeTab).toBe('login');
+    await fillForm();
+    submitForm();
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/admin' });
+    });
   });
 
-  it('displays error message on failed authentication', () => {
-    const errorMessage = 'Invalid credentials';
-    expect(errorMessage).toContain('Invalid');
+  it('shows error message when login fails (HTTP error)', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      json: async () => ({ detail: 'Invalid credentials' }),
+    });
+
+    render(<Login />);
+
+    await fillForm();
+    submitForm();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText((text) => text.includes('Invalid credentials'))
+      ).toBeInTheDocument();
+    });
   });
 
-  it('stores token on successful login', () => {
-    const token = 'auth-token-123';
-    localStorage.setItem('auth_token', token);
-    expect(localStorage.getItem('auth_token')).toBe(token);
+  it('shows fallback error when fetch throws', async () => {
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+
+    render(<Login />);
+
+    await fillForm();
+    submitForm();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText((text) => text.includes('Network error'))
+      ).toBeInTheDocument();
+    });
   });
 
-  it('disables submit button while loading', () => {
-    let loading = false;
-    const button = document.createElement('button');
-    button.disabled = loading === true;
+  it('switches to register tab and changes button text', () => {
+    render(<Login />);
 
-    expect(button.disabled).toBe(false);
+    fireEvent.click(screen.getByText(/register/i));
 
-    loading = true;
-    button.disabled = loading === true;
-    expect(button.disabled).toBe(true);
+    expect(
+      screen.getByRole('button', { name: /Create Account/i })
+    ).toBeInTheDocument();
   });
 
-  it('clears error message when switching tabs', () => {
-    let error: string | null = 'Some error';
-    const setTab = (newTab: string) => {
-      error = null; // Clear error when changing tabs
-    };
+  it('clears error when switching tabs', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ detail: 'Some error' }),
+    });
 
-    setTab('register');
-    expect(error).toBeNull();
+    render(<Login />);
+
+    await fillForm();
+    submitForm();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText((text) => text.includes('Some error'))
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText(/register/i));
+
+    expect(
+      screen.queryByText((text) => text.includes('Some error'))
+    ).not.toBeInTheDocument();
+  });
+
+  it('disables button while loading', async () => {
+    (global.fetch as jest.Mock).mockImplementation(
+      () => new Promise(() => {})
+    );
+
+    render(<Login />);
+
+    await fillForm();
+    submitForm();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /please wait/i })
+      ).toBeDisabled();
+    });
   });
 });

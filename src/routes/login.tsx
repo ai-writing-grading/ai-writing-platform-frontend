@@ -3,7 +3,7 @@ import { setToken, getUserRole } from "../lib/api";
 import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 
-const API = import.meta.env.VITE_API_GATEWAY_URL ?? "http://localhost:8000";
+const API = process.env.VITE_API_GATEWAY_URL || "http://localhost:8000";
 
 type Tab = "login" | "register";
 
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/login')({
   component: Login,
 });
 
-function Login() {
+export function Login() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("login");
   const [email, setEmail] = useState("");
