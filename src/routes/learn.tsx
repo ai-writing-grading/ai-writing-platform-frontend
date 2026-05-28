@@ -43,7 +43,7 @@ export const Route = createFileRoute('/learn')({
   component: Learn,
 });
 
-function Learn() {
+export function Learn() {
   const [query, setQuery]           = useState("");
   const [results, setResults]       = useState<Technique[]>([]);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
