@@ -97,7 +97,7 @@ export const Route = createFileRoute('/preferences')({
   component: Preferences,
 });
 
-function Preferences() {
+export function Preferences() {
   // 初始化状态时使用安全读取函数
   const [model, setModel] = useState(() => 
     getSafeStorageValue("preferred_model", VALID_MODELS, "deepseek-v4-flash")
