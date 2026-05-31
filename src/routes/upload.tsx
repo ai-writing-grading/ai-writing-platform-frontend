@@ -15,7 +15,7 @@ interface UploadResult {
 export const Route = createFileRoute('/upload')({
   component: Upload,
 })
-function Upload() {
+export function Upload() {
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
