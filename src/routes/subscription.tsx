@@ -23,7 +23,7 @@ const PLAN_COLOR: Record<string, string> = {
 export const Route = createFileRoute('/subscription')({
   component: Subscription,
 })
-function Subscription() {
+export function Subscription() {
   const [status, setStatus]     = useState<BillingStatus | null>(null);
   const [loading, setLoading]   = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
