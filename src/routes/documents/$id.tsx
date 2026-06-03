@@ -51,7 +51,7 @@ export const Route = createFileRoute('/documents/$id')({
   component: DocumentDetails,
 });
 
-function DocumentDetails() {
+export function DocumentDetails() {
   const { id } = Route.useParams();
   const [doc, setDoc]       = useState<DocumentDetail | null>(null);
   const [loading, setLoading] = useState(true);
