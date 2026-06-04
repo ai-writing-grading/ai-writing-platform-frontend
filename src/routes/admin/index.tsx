@@ -5,7 +5,7 @@ export const Route = createFileRoute('/admin/')({
   component: AdminDashboard,
 });
 
-function AdminDashboard() {
+export function AdminDashboard() {
   const [weights, setWeights] = useState({
     structure: 25,
     vocabulary: 25,
