@@ -57,7 +57,7 @@ export const Route = createFileRoute('/admin/review')({
 });
 
 // --- 主组件 ---
-function HitlReviewPage() {
+export function HitlReviewPage() {
   const [items, setItems] = useState<ReviewItem[]>([]);
   // 默认开启 loading
   const [loading, setLoading] = useState(true);
