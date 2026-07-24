@@ -2,6 +2,10 @@
 
 const API = import.meta.env.VITE_API_GATEWAY_URL ?? "";
 
+export function apiUrl(path: string): string {
+  return `${API}${path}`;
+}
+
 export const TOKEN_KEY = "auth_token";
 
 export function getToken(): string | null {
@@ -41,7 +45,7 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
   }
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const res = await fetch(`${API}${path}`, { ...init, headers });
+  const res = await fetch(apiUrl(path), { ...init, headers });
 
   if (res.status === 401) {
     clearToken();

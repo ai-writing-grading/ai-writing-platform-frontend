@@ -8,6 +8,7 @@ import * as api from '../../src/lib/api';
 const mockNavigate = jest.fn();
 
 jest.mock('../../src/lib/api', () => ({
+  apiUrl: (path: string) => path,
   setToken: jest.fn(),
   getUserRole: jest.fn(),
 }));
@@ -142,6 +143,52 @@ describe('Login Page Real Tests', () => {
     expect(
       screen.getByRole('button', { name: /Create Account/i })
     ).toBeInTheDocument();
+    expect(screen.getByLabelText(/verification code/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send code/i })).toBeInTheDocument();
+  });
+
+  it('sends a verification code to the registration email', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 202,
+      json: async () => ({ message: 'Verification code sent.', expires_in: 600 }),
+    });
+
+    render(<Login />);
+    fireEvent.click(screen.getByText(/register/i));
+    await userEvent.type(screen.getByLabelText(/^email$/i), 'test@test.com');
+    fireEvent.click(screen.getByRole('button', { name: /send code/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/auth/email-code/send', expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ email: 'test@test.com' }),
+      }));
+      expect(screen.getByText(/check your inbox/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /resend in 60s/i })).toBeDisabled();
+    });
+  });
+
+  it('includes the verification code when registering', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: async () => ({ access_token: 'register-token' }),
+    });
+
+    render(<Login />);
+    fireEvent.click(screen.getByText(/register/i));
+    await userEvent.type(screen.getByLabelText(/^email$/i), 'test@test.com');
+    await userEvent.type(screen.getByLabelText(/^password$/i), '123456');
+    await userEvent.type(screen.getByLabelText(/verification code/i), '654321');
+    submitForm();
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith('/auth/register', expect.objectContaining({
+        body: JSON.stringify({ email: 'test@test.com', password: '123456', code: '654321' }),
+      }));
+      expect(api.setToken).toHaveBeenCalledWith('register-token');
+    });
   });
 
   it('clears error when switching tabs', async () => {
