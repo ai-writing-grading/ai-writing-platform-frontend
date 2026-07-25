@@ -1,145 +1,162 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import { Subscription } from '../../src/routes/subscription';
-import { apiFetch } from '../../src/lib/api';
+import { apiFetch } from "../../src/lib/api";
+import { redirectToExternal } from "../../src/lib/redirect";
+import { Subscription } from "../../src/routes/subscription";
 
 const mockUseSearch = jest.fn();
 
-jest.mock('../../src/lib/api', () => ({
+jest.mock("../../src/lib/api", () => ({
   apiFetch: jest.fn(),
 }));
 
-jest.mock('@tanstack/react-router', () => ({
-  createFileRoute: () => () => ({}),
-  useSearch: (...args: any[]) => mockUseSearch(...args),
+jest.mock("../../src/lib/redirect", () => ({
+  redirectToExternal: jest.fn(),
 }));
 
-describe('Subscription Page', () => {
+jest.mock("@tanstack/react-router", () => ({
+  createFileRoute: () => () => ({}),
+  useSearch: (...args: unknown[]) => mockUseSearch(...args),
+}));
+
+const billingResponse = (overrides = {}) => ({
+  ok: true,
+  json: async () => ({
+    plan: "free",
+    status: "none",
+    can_manage_billing: false,
+    ...overrides,
+  }),
+});
+
+describe("Subscription Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // 默认 search param
     mockUseSearch.mockReturnValue({});
+    (apiFetch as jest.Mock).mockResolvedValue(billingResponse());
+  });
 
-    // 默认 API（避免 undefined.then 报错）
-    (apiFetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ plan: 'free', status: 'active' }),
+  it("renders title and fetches billing status", async () => {
+    render(<Subscription />);
+
+    expect(screen.getByText("Subscription")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(apiFetch).toHaveBeenCalledWith("/api/v1/billing/status");
     });
   });
 
-  it('renders title', () => {
-    render(<Subscription />);
-
-    expect(screen.getByText(/Subscription/i)).toBeInTheDocument();
-  });
-
-  it('shows payment success banner when sessionId exists', () => {
-    mockUseSearch.mockReturnValue({ sessionId: '123' });
+  it("verifies a returned Checkout Session before showing success", async () => {
+    mockUseSearch.mockReturnValue({
+      checkout: "success",
+      session_id: "cs_test_123",
+    });
+    (apiFetch as jest.Mock)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ complete: true, status: "complete" }),
+      })
+      .mockResolvedValueOnce(billingResponse({ plan: "basic", status: "active" }));
 
     render(<Subscription />);
 
     expect(
-      screen.getByText(/Payment successful/i)
+      await screen.findByText(/Payment confirmed/i),
     ).toBeInTheDocument();
+    expect(apiFetch).toHaveBeenNthCalledWith(
+      1,
+      "/api/v1/billing/checkout-session/cs_test_123",
+    );
   });
 
-  it('fetches billing status on mount', async () => {
+  it("shows a cancellation notice", async () => {
+    mockUseSearch.mockReturnValue({ checkout: "canceled" });
     render(<Subscription />);
 
-    await waitFor(() => {
-      expect(apiFetch).toHaveBeenCalledWith('/api/v1/billing/status');
-    });
+    expect(await screen.findByText(/was canceled/i)).toBeInTheDocument();
   });
 
-  it('displays current plan', async () => {
-    (apiFetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        plan: 'pro',
-        status: 'active',
+  it("shows renewal or scheduled end date", async () => {
+    (apiFetch as jest.Mock).mockResolvedValueOnce(
+      billingResponse({
+        plan: "basic",
+        status: "active",
+        current_period_end: "2030-01-01",
+        cancel_at_period_end: true,
+        can_manage_billing: true,
       }),
-    });
+    );
 
     render(<Subscription />);
 
-    await waitFor(() => {
-      expect(screen.getByText(/Current plan:/i)).toBeInTheDocument();
-
-      // 用 getAllByText 避免重复匹配报错
-      expect(screen.getAllByText(/pro/i).length).toBeGreaterThan(0);
-    });
+    expect(await screen.findByText(/Ends/i)).toBeInTheDocument();
   });
 
-  it('shows renewal date if provided', async () => {
-    (apiFetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        plan: 'basic',
-        status: 'active',
-        current_period_end: '2030-01-01',
-      }),
-    });
-
-    render(<Subscription />);
-
-    await waitFor(() => {
-      expect(screen.getByText(/Renews/i)).toBeInTheDocument();
-    });
-  });
-
-  it('renders upgrade buttons for non-current plans', async () => {
-    render(<Subscription />);
-
-    await waitFor(() => {
-      expect(screen.getAllByText(/Upgrade/i).length).toBeGreaterThan(0);
-    });
-  });
-
-  it('calls checkout API on upgrade click and redirects', async () => {
+  it("starts Checkout for a free user", async () => {
     (apiFetch as jest.Mock)
+      .mockResolvedValueOnce(billingResponse())
       .mockResolvedValueOnce({
         ok: true,
-       json: async () => ({ plan: 'free', status: 'active' }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          checkout_url: 'https://stripe.com/test',
-        }),
+        json: async () => ({ checkout_url: "https://checkout.stripe.com/test" }),
       });
 
-    render(<Subscription />); 
-    const buttons = await screen.findAllByText(/Upgrade/i);
-
+    render(<Subscription />);
+    const buttons = await screen.findAllByText("Upgrade");
     fireEvent.click(buttons[0]);
 
     await waitFor(() => {
       expect(apiFetch).toHaveBeenCalledWith(
-        '/api/v1/billing/checkout',
+        "/api/v1/billing/checkout",
         expect.objectContaining({
-          method: 'POST',
-        })
+          method: "POST",
+          body: JSON.stringify({ plan: "basic" }),
+        }),
+      );
+      expect(redirectToExternal).toHaveBeenCalledWith(
+        "https://checkout.stripe.com/test",
       );
     });
   });
 
-  it('disables buttons and shows loading state while upgrading', async () => {
+  it("opens the billing portal for an existing Stripe customer", async () => {
     (apiFetch as jest.Mock)
+      .mockResolvedValueOnce(
+        billingResponse({
+          plan: "pro",
+          status: "active",
+          can_manage_billing: true,
+        }),
+      )
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ plan: 'free', status: 'active' }),
-      })
-      .mockImplementationOnce(() => new Promise(() => {}));
+        json: async () => ({ portal_url: "https://billing.stripe.com/test" }),
+      });
 
     render(<Subscription />);
-
-    const buttons = await screen.findAllByText(/Upgrade/i);
-
-    fireEvent.click(buttons[0]);
+    fireEvent.click(await screen.findByRole("button", { name: /Manage billing/i }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Redirecting/i)).toBeInTheDocument();
+      expect(apiFetch).toHaveBeenCalledWith("/api/v1/billing/portal", {
+        method: "POST",
+      });
+      expect(redirectToExternal).toHaveBeenCalledWith(
+        "https://billing.stripe.com/test",
+      );
     });
+  });
+
+  it("shows the API error when Checkout cannot start", async () => {
+    (apiFetch as jest.Mock)
+      .mockResolvedValueOnce(billingResponse())
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ detail: "Stripe is not configured." }),
+      });
+
+    render(<Subscription />);
+    fireEvent.click((await screen.findAllByText("Upgrade"))[0]);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Stripe is not configured.",
+    );
   });
 });
