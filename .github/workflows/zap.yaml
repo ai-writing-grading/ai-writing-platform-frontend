@@ -1,9 +1,9 @@
 name: ZAP
 
 on:
-  # Vercel sends this event after a Git-connected deployment succeeds.
+  # Scan only after a deployment is promoted to production.
   repository_dispatch:
-    types: [vercel.deployment.success]
+    types: [vercel.deployment.promoted]
   workflow_dispatch:
     inputs:
       target_url:
@@ -12,7 +12,7 @@ on:
         type: string
 
 concurrency:
-  group: dast-${{ github.event.client_payload.url || github.ref }}
+  group: zap-production
   cancel-in-progress: true
 
 permissions:
@@ -20,13 +20,12 @@ permissions:
 
 jobs:
   zap-baseline:
-    if: github.event_name == 'workflow_dispatch' || github.event.client_payload.environment == 'production'
+    if: github.event_name == 'workflow_dispatch' || github.event.client_payload.project.id == vars.VERCEL_PROJECT_ID
     name: OWASP ZAP baseline scan
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       DAST_INPUT_TARGET_URL: ${{ inputs.target_url }}
-      DAST_VERCEL_TARGET_URL: ${{ github.event.client_payload.url }}
       DAST_DEFAULT_TARGET_URL: ${{ vars.DAST_TARGET_URL || 'https://ai-writing-platform-frontend.vercel.app/' }}
 
     steps:
@@ -36,9 +35,7 @@ jobs:
         run: |
           target_url=
 
-          if [[ "$GITHUB_EVENT_NAME" == "repository_dispatch" ]]; then
-            target_url="$DAST_VERCEL_TARGET_URL"
-          elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && -n "$DAST_INPUT_TARGET_URL" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && -n "$DAST_INPUT_TARGET_URL" ]]; then
             target_url="$DAST_INPUT_TARGET_URL"
           else
             target_url="$DAST_DEFAULT_TARGET_URL"
