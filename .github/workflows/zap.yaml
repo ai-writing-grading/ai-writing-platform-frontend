@@ -12,7 +12,8 @@ on:
         type: string
 
 concurrency:
-  group: zap-production
+  # Keep deployments from other Vercel projects from cancelling this project's scan.
+  group: zap-production-${{ github.event.client_payload.project.id || github.run_id }}
   cancel-in-progress: true
 
 permissions:
