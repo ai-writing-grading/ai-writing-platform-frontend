@@ -1,0 +1,92 @@
+name: DAST
+
+on:
+  # Vercel sends this event after a Git-connected deployment succeeds.
+  repository_dispatch:
+    types: [vercel.deployment.success]
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: Optional Vercel URL; falls back to the DAST_TARGET_URL repository variable
+        required: false
+        type: string
+
+concurrency:
+  group: dast-${{ github.event.client_payload.url || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  zap-baseline:
+    name: OWASP ZAP baseline scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DAST_INPUT_TARGET_URL: ${{ inputs.target_url }}
+      DAST_VERCEL_TARGET_URL: ${{ github.event.client_payload.url }}
+      DAST_DEFAULT_TARGET_URL: ${{ vars.DAST_TARGET_URL || 'https://ai-writing-platform-frontend.vercel.app/' }}
+
+    steps:
+      - name: Select scan target
+        id: target
+        shell: bash
+        run: |
+          target_url=
+
+          if [[ "$GITHUB_EVENT_NAME" == "repository_dispatch" ]]; then
+            target_url="$DAST_VERCEL_TARGET_URL"
+          elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" && -n "$DAST_INPUT_TARGET_URL" ]]; then
+            target_url="$DAST_INPUT_TARGET_URL"
+          else
+            target_url="$DAST_DEFAULT_TARGET_URL"
+          fi
+
+          if [[ ! "$target_url" =~ ^https?://[^[:space:]]+$ ]]; then
+            echo "::error::No valid Vercel URL was provided. Set the DAST_TARGET_URL repository variable or use the target_url workflow input."
+            exit 1
+          fi
+
+          printf 'url=%s\n' "$target_url" >> "$GITHUB_OUTPUT"
+          echo "DAST target: $target_url"
+
+      - name: Check target availability
+        shell: bash
+        env:
+          DAST_REQUEST_HEADER: ${{ vars.DAST_AUTH_HEADER || 'x-vercel-protection-bypass' }}
+          DAST_REQUEST_HEADER_VALUE: ${{ secrets.DAST_AUTH_HEADER_VALUE }}
+        run: |
+          for attempt in {1..15}; do
+            if [[ -n "$DAST_REQUEST_HEADER_VALUE" ]]; then
+              response_ok=false
+              curl --fail --silent --show-error \
+                --header "$DAST_REQUEST_HEADER: $DAST_REQUEST_HEADER_VALUE" \
+                "${{ steps.target.outputs.url }}" > /dev/null && response_ok=true
+            else
+              response_ok=false
+              curl --fail --silent --show-error \
+                "${{ steps.target.outputs.url }}" > /dev/null && response_ok=true
+            fi
+
+            if [[ "$response_ok" == "true" ]]; then
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "::error::Vercel deployment did not become reachable."
+          exit 1
+
+      - name: Run ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.15.0
+        env:
+          ZAP_AUTH_HEADER: ${{ vars.DAST_AUTH_HEADER || 'x-vercel-protection-bypass' }}
+          ZAP_AUTH_HEADER_VALUE: ${{ secrets.DAST_AUTH_HEADER_VALUE }}
+          ZAP_AUTH_HEADER_SITE: ${{ vars.DAST_AUTH_HEADER_SITE || 'vercel.app' }}
+        with:
+          target: ${{ steps.target.outputs.url }}
+          cmd_options: '-j -m 2'
+          fail_action: ${{ vars.DAST_FAIL_ON_ALERTS || 'false' }}
+          allow_issue_writing: false
+          artifact_name: zap-baseline-${{ github.run_id }}
