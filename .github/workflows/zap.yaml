@@ -1,4 +1,4 @@
-name: DAST
+name: ZAP
 
 on:
   # Vercel sends this event after a Git-connected deployment succeeds.
@@ -20,6 +20,7 @@ permissions:
 
 jobs:
   zap-baseline:
+    if: github.event_name == 'workflow_dispatch' || github.event.client_payload.environment == 'production'
     name: OWASP ZAP baseline scan
     runs-on: ubuntu-latest
     timeout-minutes: 30
