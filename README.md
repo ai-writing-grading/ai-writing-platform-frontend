@@ -149,5 +149,5 @@ The GitHub Actions workflow (`.github/workflows/ci.yml` in the backend repo) run
 1. `npm run lint` — ESLint with zero warnings
 2. `tsc && npm run build` — TypeScript compile + Vite production build
 3. Docker image smoke test
-4. 2025
+4. 
 
