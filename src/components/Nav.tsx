@@ -4,10 +4,11 @@ import { getToken, clearToken, apiFetch, getUserRole } from "../lib/api";
 
 export function Nav() {
   const navigate = useNavigate();
-  // Subscribe to route changes so loggedIn/role are re-read from localStorage after login/logout
+  
   useRouterState({ select: (s) => s.location.pathname });
   const loggedIn = !!getToken();
   
+  // Subscribe to route changes so loggedIn/role are re-read from localStorage after login/logout
   const role = getUserRole(); 
   const isAdmin = role === "admin";
 
