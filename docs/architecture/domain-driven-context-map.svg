@@ -1,0 +1,243 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">AI Writing Platform Domain-Driven Design Context Map</title>
+  <desc id="desc">DDD strategic design context map showing core, supporting, and generic subdomains, their bounded contexts, upstream dependencies, partnerships, published languages, and anti-corruption layers.</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, Arial, sans-serif; letter-spacing: 0; fill: #172033; }
+      .title { font-size: 40px; font-weight: 700; }
+      .subtitle { font-size: 17px; fill: #667085; }
+      .eyebrow { font-size: 13px; font-weight: 700; }
+      .group-title { font-size: 19px; font-weight: 700; }
+      .context-title { font-size: 18px; font-weight: 700; }
+      .stereo { font-size: 11px; font-weight: 700; }
+      .body { font-size: 12px; fill: #667085; }
+      .small { font-size: 11px; fill: #667085; }
+      .blue { fill: #1d4ed8; }
+      .teal { fill: #0f766e; }
+      .amber { fill: #9a5b08; }
+      .muted { fill: #667085; }
+      .dependency { fill: none; stroke: #53657d; stroke-width: 1.8; marker-end: url(#arrow-gray); }
+      .partnership { fill: none; stroke: #0f766e; stroke-width: 2; }
+      .external { fill: none; stroke: #b7791f; stroke-width: 1.8; stroke-dasharray: 7 6; marker-end: url(#arrow-amber); }
+    </style>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#1e293b" flood-opacity="0.07"/>
+    </filter>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1l8 4-8 4" fill="none" stroke="#53657d" stroke-width="1.6"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1l8 4-8 4" fill="none" stroke="#b7791f" stroke-width="1.6"/>
+    </marker>
+  </defs>
+
+  <rect width="1920" height="1080" fill="#f8fafc"/>
+  <rect width="1920" height="8" fill="#0f766e"/>
+  <text x="64" y="54" class="eyebrow teal">DOMAIN MODEL  /  STRATEGIC DESIGN VIEW</text>
+  <text x="64" y="103" class="title">AI Writing Platform</text>
+  <text x="64" y="137" class="subtitle">Domain-Driven Design context map with bounded contexts and integration patterns</text>
+
+  <!-- System domain boundary -->
+  <rect x="250" y="180" width="1320" height="760" rx="4" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4"/>
+  <text x="274" y="207" class="stereo muted">«domain»</text>
+  <text x="274" y="230" class="group-title">AI Writing Platform Domain</text>
+  <text x="1544" y="220" text-anchor="end" class="small">Bounded contexts own their models; identifiers cross boundaries through published contracts</text>
+
+  <!-- Subdomain group boundaries -->
+  <rect x="290" y="250" width="740" height="450" rx="4" fill="#f8fbff" stroke="#87aef0" stroke-width="1.3"/>
+  <rect x="290" y="250" width="740" height="40" rx="4" fill="#eef4ff"/>
+  <path d="M290 286h740" stroke="#bfd0ed"/>
+  <text x="312" y="269" class="stereo blue">«core subdomain»</text>
+  <text x="312" y="285" class="group-title">Differentiating Capabilities</text>
+
+  <rect x="1060" y="250" width="470" height="450" rx="4" fill="#f7fcfa" stroke="#7fbeb1" stroke-width="1.3"/>
+  <rect x="1060" y="250" width="470" height="40" rx="4" fill="#edf8f5"/>
+  <path d="M1060 286h470" stroke="#acd7cf"/>
+  <text x="1082" y="269" class="stereo teal">«supporting subdomain»</text>
+  <text x="1082" y="285" class="group-title">Supporting Capabilities</text>
+
+  <rect x="290" y="730" width="1240" height="170" rx="4" fill="#fbfcfe" stroke="#9aa8bb" stroke-width="1.3"/>
+  <rect x="290" y="730" width="1240" height="38" rx="4" fill="#eef2f6"/>
+  <path d="M290 764h1240" stroke="#cbd5e1"/>
+  <text x="312" y="749" class="stereo muted">«generic subdomain»</text>
+  <text x="312" y="764" class="group-title">Commodity Capabilities</text>
+
+  <!-- Context-map relationships, behind bounded contexts -->
+  <path d="M630 385h60" class="dependency"/>
+  <rect x="603" y="292" width="114" height="17" fill="#f8fbff"/>
+  <text x="660" y="304" text-anchor="middle" class="small">C/S · D → U · evaluation</text>
+
+  <path d="M480 470v30h112v20" class="dependency"/>
+  <rect x="368" y="481" width="107" height="28" fill="#f8fbff"/>
+  <text x="375" y="494" class="small">D → U · drafting</text>
+  <text x="375" y="507" class="small">and refinement</text>
+
+  <path d="M840 470v30H728v20" class="dependency"/>
+  <rect x="846" y="482" width="100" height="28" fill="#f8fbff"/>
+  <text x="853" y="495" class="small">D → U · agent</text>
+  <text x="853" y="508" class="small">evaluation</text>
+
+  <path d="M990 350h100" class="partnership"/>
+  <circle cx="990" cy="350" r="4" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+  <circle cx="1090" cy="350" r="4" fill="#ffffff" stroke="#0f766e" stroke-width="2"/>
+  <rect x="1000" y="313" width="94" height="28" fill="#ffffff"/>
+  <text x="1007" y="326" class="small" fill="#0f766e">Partnership</text>
+  <text x="1007" y="339" class="small">review lifecycle</text>
+
+  <path d="M990 420h50v62h50" class="dependency"/>
+  <rect x="994" y="445" width="92" height="27" fill="#ffffff"/>
+  <text x="1001" y="458" class="small">D → U · rubric</text>
+  <text x="1001" y="471" class="small">contract</text>
+
+  <path d="M810 605h280" class="dependency"/>
+  <rect x="911" y="570" width="125" height="29" fill="#ffffff"/>
+  <text x="918" y="583" class="small">OHS + Published Language</text>
+  <text x="918" y="596" class="small">retrieval contract</text>
+
+  <path d="M330 420h-20v290h270v60" class="dependency"/>
+  <rect x="318" y="670" width="82" height="29" fill="#ffffff"/>
+  <text x="325" y="683" class="small">D → U</text>
+  <text x="325" y="696" class="small">identity contract</text>
+
+  <path d="M480 470v240h670v60" class="dependency"/>
+  <rect x="771" y="696" width="112" height="28" fill="#ffffff"/>
+  <text x="778" y="709" class="small">D → U · entitlement</text>
+  <text x="778" y="722" class="small">and quota policy</text>
+
+  <!-- External ACL dependencies -->
+  <path d="M510 605H220" class="external"/>
+  <rect x="279" y="568" width="126" height="28" fill="#f8fafc"/>
+  <text x="286" y="581" class="small" fill="#9a5b08">Anti-Corruption Layer</text>
+  <text x="286" y="594" class="small">LLM provider contract</text>
+
+  <path d="M330 825H220" class="external"/>
+  <rect x="226" y="788" width="98" height="28" fill="#f8fafc"/>
+  <text x="233" y="801" class="small" fill="#9a5b08">ACL / adapter</text>
+  <text x="233" y="814" class="small">email delivery</text>
+
+  <path d="M1400 825h200" class="external"/>
+  <rect x="1460" y="788" width="124" height="28" fill="#f8fafc"/>
+  <text x="1467" y="801" class="small" fill="#9a5b08">Anti-Corruption Layer</text>
+  <text x="1467" y="814" class="small">payment contract</text>
+
+  <path d="M900 820h-70" class="dependency"/>
+  <rect x="835" y="782" width="60" height="29" fill="#fbfcfe"/>
+  <text x="865" y="795" text-anchor="middle" class="small">OHS / PL</text>
+  <text x="865" y="808" text-anchor="middle" class="small">UserId</text>
+
+  <!-- Core bounded contexts -->
+  <g filter="url(#shadow)">
+    <rect x="330" y="310" width="300" height="160" rx="4" fill="#ffffff" stroke="#5d87cf" stroke-width="1.4"/>
+  </g>
+  <rect x="330" y="310" width="300" height="35" rx="4" fill="#eef4ff"/>
+  <text x="348" y="330" class="stereo blue">«bounded context»</text>
+  <text x="348" y="367" class="context-title">Writing Lifecycle</text>
+  <text x="348" y="393" class="stereo muted">«aggregate root» WritingDocument</text>
+  <text x="348" y="416" class="body">Entities: TextChunk · ProcessingResult</text>
+  <text x="348" y="438" class="body">Value Objects: Content · Language · Framework</text>
+  <text x="348" y="458" class="small">Ubiquitous language: draft, upload, process, history</text>
+
+  <g filter="url(#shadow)">
+    <rect x="690" y="310" width="300" height="160" rx="4" fill="#ffffff" stroke="#7b61c9" stroke-width="1.4"/>
+  </g>
+  <rect x="690" y="310" width="300" height="35" rx="4" fill="#f4f0fb"/>
+  <text x="708" y="330" class="stereo" fill="#6941c6">«bounded context»</text>
+  <text x="708" y="367" class="context-title">Assessment &amp; Feedback</text>
+  <text x="708" y="393" class="stereo muted">«aggregate root» Evaluation</text>
+  <text x="708" y="416" class="body">Value Objects: Score · Grade · Evidence</text>
+  <text x="708" y="438" class="body">Domain Service: EssayEvaluator</text>
+  <text x="708" y="458" class="small">Ubiquitous language: evaluate, grade, feedback</text>
+
+  <g filter="url(#shadow)">
+    <rect x="510" y="520" width="300" height="150" rx="4" fill="#ffffff" stroke="#cc6b88" stroke-width="1.4"/>
+  </g>
+  <rect x="510" y="520" width="300" height="35" rx="4" fill="#fff0f4"/>
+  <text x="528" y="540" class="stereo" fill="#be2f5b">«bounded context»</text>
+  <text x="528" y="577" class="context-title">Agent Assistance</text>
+  <text x="528" y="603" class="stereo muted">«domain service» EvaluationPanel</text>
+  <text x="528" y="626" class="body">Value Objects: AgentRequest · AgentResult</text>
+  <text x="528" y="648" class="small">Guard · Draft · Evaluate · Refine · Recommend</text>
+
+  <!-- Supporting bounded contexts -->
+  <g filter="url(#shadow)">
+    <rect x="1090" y="300" width="410" height="100" rx="4" fill="#ffffff" stroke="#4b9f90" stroke-width="1.3"/>
+  </g>
+  <text x="1110" y="322" class="stereo teal">«bounded context»</text>
+  <text x="1110" y="349" class="context-title">Human Review</text>
+  <text x="1110" y="374" class="body">Aggregate: ReviewCase · Entity: ReviewDecision</text>
+  <text x="1110" y="391" class="small">pending · assigned · approved · overridden</text>
+
+  <g filter="url(#shadow)">
+    <rect x="1090" y="430" width="410" height="105" rx="4" fill="#ffffff" stroke="#4b9f90" stroke-width="1.3"/>
+  </g>
+  <text x="1110" y="452" class="stereo teal">«bounded context»</text>
+  <text x="1110" y="479" class="context-title">Rubric Policy</text>
+  <text x="1110" y="504" class="body">Aggregate: RubricDefinition · Entity: Dimension</text>
+  <text x="1110" y="523" class="small">Value Object: DimensionWeight · total = 100%</text>
+
+  <g filter="url(#shadow)">
+    <rect x="1090" y="565" width="410" height="105" rx="4" fill="#ffffff" stroke="#4b9f90" stroke-width="1.3"/>
+  </g>
+  <text x="1110" y="587" class="stereo teal">«bounded context»</text>
+  <text x="1110" y="614" class="context-title">Knowledge Base</text>
+  <text x="1110" y="639" class="body">Aggregate: KnowledgeDocument · VO: Embedding</text>
+  <text x="1110" y="658" class="small">Domain Service: SemanticRetrieval</text>
+
+  <!-- Generic bounded contexts -->
+  <g filter="url(#shadow)">
+    <rect x="330" y="770" width="500" height="100" rx="4" fill="#ffffff" stroke="#74859e" stroke-width="1.3"/>
+  </g>
+  <text x="350" y="792" class="stereo muted">«bounded context»</text>
+  <text x="350" y="819" class="context-title">Identity &amp; Access</text>
+  <text x="350" y="844" class="body">Aggregate: User · Entity: RoleAssignment</text>
+  <text x="350" y="863" class="small">EmailVerificationChallenge · authentication · RBAC</text>
+
+  <g filter="url(#shadow)">
+    <rect x="900" y="770" width="500" height="100" rx="4" fill="#ffffff" stroke="#74859e" stroke-width="1.3"/>
+  </g>
+  <text x="920" y="792" class="stereo muted">«bounded context»</text>
+  <text x="920" y="819" class="context-title">Subscription &amp; Billing</text>
+  <text x="920" y="844" class="body">Aggregate: Subscription · Value Object: Plan</text>
+  <text x="920" y="863" class="small">Domain Service: EntitlementPolicy · checkout · renewal</text>
+
+  <!-- External providers -->
+  <text x="64" y="516" class="eyebrow amber">EXTERNAL PROVIDERS</text>
+  <g filter="url(#shadow)">
+    <rect x="64" y="550" width="156" height="110" rx="4" fill="#ffffff" stroke="#a78bdf" stroke-width="1.3"/>
+  </g>
+  <text x="82" y="574" class="stereo" fill="#6941c6">«external»</text>
+  <text x="82" y="603" class="context-title">DeepSeek</text>
+  <text x="82" y="628" class="body">LLM provider</text>
+  <text x="82" y="648" class="small">foreign model</text>
+
+  <g filter="url(#shadow)">
+    <rect x="64" y="770" width="156" height="110" rx="4" fill="#ffffff" stroke="#d6a14a" stroke-width="1.3"/>
+  </g>
+  <text x="82" y="794" class="stereo amber">«external»</text>
+  <text x="82" y="823" class="context-title">QQ SMTP</text>
+  <text x="82" y="848" class="body">Email transport</text>
+  <text x="82" y="868" class="small">foreign protocol</text>
+
+  <text x="1600" y="746" class="eyebrow amber">EXTERNAL PROVIDER</text>
+  <g filter="url(#shadow)">
+    <rect x="1600" y="770" width="256" height="110" rx="4" fill="#ffffff" stroke="#857df0" stroke-width="1.3"/>
+  </g>
+  <text x="1620" y="794" class="stereo" fill="#635bff">«external»</text>
+  <text x="1620" y="823" class="context-title">Stripe API</text>
+  <text x="1620" y="848" class="body">Payment and subscription provider</text>
+  <text x="1620" y="868" class="small">foreign billing model</text>
+
+  <!-- Footer legend -->
+  <text x="64" y="1018" class="eyebrow muted">DDD NOTATION</text>
+  <rect x="172" y="1001" width="46" height="26" rx="2" fill="#ffffff" stroke="#5d87cf"/>
+  <text x="230" y="1018" class="small">bounded context</text>
+  <path d="M346 1014h48" class="dependency"/>
+  <text x="410" y="1018" class="small">dependency: downstream → upstream</text>
+  <path d="M655 1014h48" class="partnership"/>
+  <circle cx="655" cy="1014" r="3" fill="#ffffff" stroke="#0f766e"/>
+  <circle cx="703" cy="1014" r="3" fill="#ffffff" stroke="#0f766e"/>
+  <text x="719" y="1018" class="small">Partnership</text>
+  <path d="M821 1014h48" class="external"/>
+  <text x="885" y="1018" class="small">Anti-Corruption Layer</text>
+  <text x="1856" y="1018" text-anchor="end" class="small">Domain-Driven Diagram · Strategic DDD Context Map</text>
+</svg>
