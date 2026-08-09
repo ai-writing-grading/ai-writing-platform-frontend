@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Writing Platform — Architecture Presentation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f6f8fc;
+      }
+
+      * {
+        box-sizing: border-box;
+        cursor: none !important;
+      }
+
+      html {
+        background: #f6f8fc;
+        scroll-behavior: smooth;
+        scroll-snap-type: y mandatory;
+        scrollbar-width: none;
+      }
+
+      body {
+        margin: 0;
+        width: 100%;
+        background: #f6f8fc;
+      }
+
+      html::-webkit-scrollbar,
+      body::-webkit-scrollbar {
+        display: none;
+      }
+
+      .slide {
+        width: 100%;
+        height: auto;
+        display: block;
+        overflow: visible;
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        background: #f6f8fc;
+      }
+
+      .slide img {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+
+      .highlighter {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        width: 26px;
+        height: 26px;
+        border: 2px solid rgb(255 184 0 / 90%);
+        border-radius: 50%;
+        background: rgb(255 235 59 / 32%);
+        box-shadow:
+          0 0 0 3px rgb(255 235 59 / 12%),
+          0 0 12px rgb(255 193 7 / 42%);
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        transition:
+          width 80ms ease,
+          height 80ms ease,
+          opacity 120ms ease,
+          background-color 80ms ease;
+        will-change: left, top;
+      }
+
+      .highlighter::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: rgb(255 122 0 / 95%);
+        transform: translate(-50%, -50%);
+      }
+
+      .highlighter.visible {
+        opacity: 1;
+      }
+
+      .highlighter.active {
+        width: 34px;
+        height: 34px;
+        background: rgb(255 193 7 / 42%);
+      }
+
+      @media (pointer: coarse) {
+        * {
+          cursor: auto !important;
+        }
+
+        .highlighter {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main aria-label="Architecture presentation">
+      <section class="slide" aria-label="1. System logical architecture">
+        <img src="logical-architecture.png" alt="System Logical Architecture Overview" draggable="false" />
+      </section>
+      <section class="slide" aria-label="2. Domain-Driven Design context map">
+        <img src="ddd-context-map.png" alt="DDD Context Map" draggable="false" />
+      </section>
+      <section class="slide" aria-label="3. Multi-agent logical architecture">
+        <img src="multi-agent-logical-architecture.png" alt="Multi-Agent Subsystem Logical Architecture" draggable="false" />
+      </section>
+      <section class="slide" aria-label="4. Physical architecture">
+        <img src="physical-diagram.png" alt="Physical Architecture Overview" draggable="false" />
+      </section>
+      <section class="slide" aria-label="5. Physical deployment">
+        <img src="physical-deployment.png" alt="Physical Deployment Diagram" draggable="false" />
+      </section>
+      <section class="slide" aria-label="6. STRIDE threat assessment">
+        <img src="stride.png" alt="STRIDE Threat Assessment" draggable="false" />
+      </section>
+    </main>
+
+    <div class="highlighter" id="highlighter" aria-hidden="true"></div>
+
+    <script>
+      const slides = [...document.querySelectorAll(".slide")];
+      const highlighter = document.getElementById("highlighter");
+      let activeIndex = 0;
+
+      function goToSlide(index) {
+        activeIndex = Math.max(0, Math.min(slides.length - 1, index));
+        slides[activeIndex].scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((entry) => entry.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+          if (!visible) return;
+          activeIndex = slides.indexOf(visible.target);
+        },
+        { threshold: [0.55, 0.75, 0.95] },
+      );
+
+      slides.forEach((slide) => observer.observe(slide));
+
+      document.addEventListener("keydown", (event) => {
+        if (["ArrowDown", "ArrowRight", "PageDown", " "].includes(event.key)) {
+          event.preventDefault();
+          goToSlide(activeIndex + 1);
+        } else if (["ArrowUp", "ArrowLeft", "PageUp"].includes(event.key)) {
+          event.preventDefault();
+          goToSlide(activeIndex - 1);
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          goToSlide(0);
+        } else if (event.key === "End") {
+          event.preventDefault();
+          goToSlide(slides.length - 1);
+        } else if (/^[1-6]$/.test(event.key)) {
+          event.preventDefault();
+          goToSlide(Number(event.key) - 1);
+        }
+      });
+
+      document.addEventListener("mousemove", (event) => {
+        highlighter.style.left = `${event.clientX}px`;
+        highlighter.style.top = `${event.clientY}px`;
+        highlighter.classList.add("visible");
+      });
+
+      document.addEventListener("mousedown", () => highlighter.classList.add("active"));
+      document.addEventListener("mouseup", () => highlighter.classList.remove("active"));
+      document.documentElement.addEventListener("mouseleave", () => highlighter.classList.remove("visible"));
+      document.documentElement.addEventListener("mouseenter", () => highlighter.classList.add("visible"));
+    </script>
+  </body>
+</html>
