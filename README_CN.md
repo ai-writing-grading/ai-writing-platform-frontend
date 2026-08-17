@@ -64,7 +64,7 @@ ai-writing-platform-frontend/
 # 1. 安装依赖
 npm install
 
-# 2. 创建本地环境文件
+# 2. 按需覆盖开发代理地址（仓库默认值见 .env）
 cp .env.local.example .env.local
 # 编辑 .env.local，设置：
 #   VITE_API_GATEWAY_URL=http://localhost:8000
@@ -86,7 +86,7 @@ docker compose up postgres redis api_gateway -d
 
 也可以不使用 Docker，直接在宿主机上运行 API 网关。参见[后端 README](../ai-writing-platform-backend/README_CN.md#独立服务开发) 中各服务的启动命令和环境变量说明。
 
-将 `.env.local` 中的 `VITE_API_GATEWAY_URL` 指向网关所在地址，然后照常执行 `npm run dev` 即可。
+将 `.env.local` 中的 `VITE_API_GATEWAY_URL` 指向网关所在地址，然后照常执行 `npm run dev` 即可。development 模式将其用作 Vite 代理目标；production 模式将其作为 API 基础 URL 写入构建产物。
 
 ### 其他脚本
 
@@ -132,7 +132,7 @@ docker compose up --build
 
 | 变量名 | 默认值 | 说明 |
 |--------|--------|------|
-| `VITE_API_GATEWAY_URL` | `http://localhost:8000` | 后端 API 网关的基础 URL |
+| `VITE_API_GATEWAY_URL` | `.env` 中为 `https://120.26.250.228.nip.io` | 后端 API 网关地址；开发时作为代理目标，生产时作为 API 基础 URL |
 
 ---
 

@@ -68,7 +68,7 @@ The frontend has **no direct database or AI dependencies**. All data flows throu
 # 1. Install dependencies
 npm install
 
-# 2. Create local environment file
+# 2. Optionally override the development proxy target (see .env for the repository default)
 cp .env.local.example .env.local
 # Edit .env.local and set:
 #   VITE_API_GATEWAY_URL=http://localhost:8000
@@ -90,7 +90,7 @@ docker compose up postgres redis api_gateway -d
 
 Alternatively, run the API Gateway natively (no Docker required). See the [backend README](../ai-writing-platform-backend/README.md#independent-service-development) for per-service startup instructions and environment variables.
 
-Set `VITE_API_GATEWAY_URL` in `.env.local` to point at whichever host the gateway is running on, then `npm run dev` as usual.
+Set `VITE_API_GATEWAY_URL` in `.env.local` to point at whichever host the gateway is running on, then `npm run dev` as usual. Development uses it as the Vite proxy target; production embeds it as the API base URL.
 
 ### Other Scripts
 
@@ -137,7 +137,7 @@ This brings up all backend microservices alongside the frontend.
 
 | Variable               | Default                 | Description                         |
 | ---------------------- | ----------------------- | ----------------------------------- |
-| `VITE_API_GATEWAY_URL` | `http://localhost:8000` | Base URL of the backend API Gateway |
+| `VITE_API_GATEWAY_URL` | `https://120.26.250.228.nip.io` in `.env` | Backend gateway address; a proxy target in development and the API base URL in production |
 
 
 ---
@@ -150,4 +150,3 @@ The GitHub Actions workflow (`.github/workflows/ci.yml` in the backend repo) run
 2. `tsc && npm run build` — TypeScript compile + Vite production build
 3. Docker image smoke test
 4. 
-

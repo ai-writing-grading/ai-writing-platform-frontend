@@ -1,6 +1,7 @@
 // src/lib/api.ts
 
-const API = import.meta.env.VITE_API_GATEWAY_URL ?? "";
+// Development requests use Vite's same-origin proxy; production keeps its build-time API URL.
+const API = import.meta.env.DEV ? "" : (import.meta.env.VITE_API_GATEWAY_URL ?? "");
 
 export function apiUrl(path: string): string {
   return `${API}${path}`;
