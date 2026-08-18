@@ -1,10 +1,10 @@
 // src/lib/api.ts
 
-// Development requests use Vite's same-origin proxy; production keeps its build-time API URL.
-const API = import.meta.env.DEV ? "" : (import.meta.env.VITE_API_GATEWAY_URL ?? "");
+import { API_GATEWAY_URL } from "./api-config";
+import { redirectToExternal } from "./redirect";
 
 export function apiUrl(path: string): string {
-  return `${API}${path}`;
+  return `${API_GATEWAY_URL}${path}`;
 }
 
 export const TOKEN_KEY = "auth_token";
@@ -50,7 +50,7 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
 
   if (res.status === 401) {
     clearToken();
-    window.location.href = "/login";
+    redirectToExternal("/login");
   }
 
   if (res.status === 429) {

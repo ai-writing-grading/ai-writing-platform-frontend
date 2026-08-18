@@ -1,235 +1,144 @@
-// Unit tests for api.ts functions
-// Testing core logic without importing due to import.meta incompatibility with Jest
+jest.mock('../../src/lib/api-config', () => ({
+  API_GATEWAY_URL: '',
+}));
 
-describe('API utility functions', () => {
+jest.mock('../../src/lib/redirect', () => ({
+  redirectToExternal: jest.fn(),
+}));
+
+import {
+  TOKEN_KEY,
+  apiFetch,
+  apiUrl,
+  clearToken,
+  getToken,
+  getUserRole,
+  setToken,
+} from '../../src/lib/api';
+import { redirectToExternal } from '../../src/lib/redirect';
+
+function responseWithStatus(status: number): Response {
+  return { status } as Response;
+}
+
+describe('API utilities', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+    global.fetch = jest.fn();
   });
 
-  describe('Token management logic', () => {
-    it('should store and retrieve tokens from localStorage', () => {
-      const TOKEN_KEY = 'auth_token';
-      const token = 'test-token-123';
-      
-      localStorage.setItem(TOKEN_KEY, token);
-      expect(localStorage.getItem(TOKEN_KEY)).toBe(token);
-    });
-
-    it('should clear tokens from localStorage', () => {
-      const TOKEN_KEY = 'auth_token';
-      localStorage.setItem(TOKEN_KEY, 'some-token');
-      localStorage.removeItem(TOKEN_KEY);
-      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
-    });
-
-    it('should handle missing token gracefully', () => {
-      const TOKEN_KEY = 'auth_token';
-      expect(localStorage.getItem(TOKEN_KEY)).toBeNull();
-    });
+  it('builds a same-origin API URL', () => {
+    expect(apiUrl('/api/v1/test')).toBe('/api/v1/test');
   });
 
-  describe('JWT token parsing logic', () => {
-    const extractRoleFromJWT = (token: string | null): string | null => {
-      if (!token) return null;
-      
-      try {
-        const payloadBase64 = token.split('.')[1];
-        const decodedJson = atob(payloadBase64);
-        const payload = JSON.parse(decodedJson);
-        return payload.role || 'user';
-      } catch (e) {
-        return null;
-      }
-    };
+  it('reads, stores, and clears the auth token', () => {
+    setToken('new-token');
+    expect(getToken()).toBe('new-token');
+    expect(localStorage.getItem(TOKEN_KEY)).toBe('new-token');
 
-    it('should extract admin role from valid JWT', () => {
-      const payload = { role: 'admin', sub: 'user123' };
-      const token = `header.${btoa(JSON.stringify(payload))}.signature`;
-      expect(extractRoleFromJWT(token)).toBe('admin');
-    });
-
-    it('should extract user role from valid JWT', () => {
-      const payload = { role: 'user', sub: 'user456' };
-      const token = `header.${btoa(JSON.stringify(payload))}.signature`;
-      expect(extractRoleFromJWT(token)).toBe('user');
-    });
-
-    it('should default to user role when role field is missing', () => {
-      const payload = { sub: 'user123' };
-      const token = `header.${btoa(JSON.stringify(payload))}.signature`;
-      expect(extractRoleFromJWT(token)).toBe('user');
-    });
-
-    it('should return null for invalid JWT', () => {
-      expect(extractRoleFromJWT('invalid.token.format')).toBeNull();
-    });
-
-    it('should return null for null input', () => {
-      expect(extractRoleFromJWT(null)).toBeNull();
-    });
-
-    it('should handle malformed base64', () => {
-      const token = 'header.!!!invalid!!!.signature';
-      expect(extractRoleFromJWT(token)).toBeNull();
-    });
+    clearToken();
+    expect(getToken()).toBeNull();
   });
 
-  describe('HTTP header construction', () => {
-    it('should construct headers with Content-Type for JSON', () => {
-      const headers = new Headers();
-      headers.set('Content-Type', 'application/json');
-      
-      expect(headers.get('Content-Type')).toBe('application/json');
-    });
-
-    it('should add Authorization header when token exists', () => {
-      const headers = new Headers();
-      const token = 'test-token-123';
-      headers.set('Authorization', `Bearer ${token}`);
-      
-      expect(headers.get('Authorization')).toBe(`Bearer ${token}`);
-    });
-
-    it('should merge custom headers', () => {
-      const headers = new Headers();
-      headers.set('Content-Type', 'application/json');
-      headers.set('X-Custom-Header', 'custom-value');
-      
-      expect(headers.get('Content-Type')).toBe('application/json');
-      expect(headers.get('X-Custom-Header')).toBe('custom-value');
-    });
-
-    it('should not set Content-Type for FormData', () => {
-      const body = new FormData();
-      const shouldSetContentType = !(body instanceof FormData);
-      const headers = new Headers();
-      
-      if (shouldSetContentType) {
-        headers.set('Content-Type', 'application/json');
-      }
-      
-      expect(headers.get('Content-Type')).toBeNull();
-    });
+  it('returns null when no token is stored', () => {
+    expect(getUserRole()).toBeNull();
   });
 
-  describe('Response status handling', () => {
-    it('should identify 401 Unauthorized responses', () => {
-      const status = 401;
-      expect(status === 401).toBe(true);
-    });
+  it('extracts a role from a stored JWT', () => {
+    const payload = btoa(JSON.stringify({ role: 'admin' }));
+    setToken(`header.${payload}.signature`);
 
-    it('should identify 429 Too Many Requests responses', () => {
-      const status = 429;
-      expect(status === 429).toBe(true);
-    });
-
-    it('should identify successful responses', () => {
-      expect(200 >= 200 && 200 < 300).toBe(true);
-    });
+    expect(getUserRole()).toBe('admin');
   });
 
-  describe('Event dispatching', () => {
-    it('should dispatch custom events', () => {
-      const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
-      const event = new CustomEvent('api:quota-exceeded');
-      
-      window.dispatchEvent(event);
-      
-      expect(dispatchSpy).toHaveBeenCalledWith(event);
-      dispatchSpy.mockRestore();
-    });
+  it('defaults a valid JWT without a role to user', () => {
+    const payload = btoa(JSON.stringify({ sub: 'user-1' }));
+    setToken(`header.${payload}.signature`);
 
-    it('should handle quota-exceeded events', () => {
-      const dispatchSpy = jest.spyOn(window, 'dispatchEvent');
-      const event = new CustomEvent('api:quota-exceeded');
-      
-      window.dispatchEvent(event);
-      
-      expect(dispatchSpy).toHaveBeenCalled();
-      const callEvent = dispatchSpy.mock.calls[0][0];
-      expect((callEvent as CustomEvent).type).toBe('api:quota-exceeded');
-      dispatchSpy.mockRestore();
-    });
+    expect(getUserRole()).toBe('user');
   });
 
-  describe('localStorage operations', () => {
-    it('should set and get items', () => {
-      localStorage.setItem('key', 'value');
-      expect(localStorage.getItem('key')).toBe('value');
-    });
+  it('returns null and logs when the JWT is malformed', () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    setToken('invalid-token');
 
-    it('should remove items', () => {
-      localStorage.setItem('key', 'value');
-      localStorage.removeItem('key');
-      expect(localStorage.getItem('key')).toBeNull();
-    });
+    expect(getUserRole()).toBeNull();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Failed to parse JWT token',
+      expect.any(Error),
+    );
 
-    it('should clear all items', () => {
-      localStorage.setItem('key1', 'value1');
-      localStorage.setItem('key2', 'value2');
-      localStorage.clear();
-      
-      expect(localStorage.getItem('key1')).toBeNull();
-      expect(localStorage.getItem('key2')).toBeNull();
-    });
+    consoleSpy.mockRestore();
   });
 
-  describe('URL construction', () => {
-    it('should append path to base URL', () => {
-      const baseURL = 'http://localhost:8000';
-      const path = '/api/v1/test';
-      const fullURL = `${baseURL}${path}`;
-      
-      expect(fullURL).toBe('http://localhost:8000/api/v1/test');
+  it('adds JSON and authorization headers to API requests', async () => {
+    setToken('auth-token');
+    (global.fetch as jest.Mock).mockResolvedValue(responseWithStatus(200));
+
+    await apiFetch('/api/v1/test', {
+      method: 'POST',
+      body: JSON.stringify({ title: 'Test' }),
+      headers: { 'X-Request-ID': 'request-1' },
     });
 
-    it('should handle empty base URL', () => {
-      const baseURL = '';
-      const path = '/api/v1/test';
-      const fullURL = `${baseURL}${path}`;
-      
-      expect(fullURL).toBe('/api/v1/test');
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/v1/test',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ title: 'Test' }),
+        headers: expect.any(Headers),
+      }),
+    );
 
-    it('should construct query strings', () => {
-      const params = new URLSearchParams();
-      params.append('key1', 'value1');
-      params.append('key2', 'value2');
-      
-      expect(params.toString()).toContain('key1=value1');
-      expect(params.toString()).toContain('key2=value2');
-    });
+    const request = (global.fetch as jest.Mock).mock.calls[0][1] as RequestInit;
+    const headers = request.headers as Headers;
+    expect(headers.get('Content-Type')).toBe('application/json');
+    expect(headers.get('Authorization')).toBe('Bearer auth-token');
+    expect(headers.get('X-Request-ID')).toBe('request-1');
   });
 
-  describe('Error handling', () => {
-    it('should handle fetch errors', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(
-        new Error('Network error')
-      );
+  it('lets the browser set the multipart Content-Type header', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue(responseWithStatus(200));
 
-      try {
-        await fetch('/api/test');
-        fail('Should have thrown');
-      } catch (error) {
-        expect((error as Error).message).toBe('Network error');
-      }
-    });
+    await apiFetch('/api/v1/upload', { body: new FormData() });
 
-    it('should handle non-200 status codes', () => {
-      const statuses = [400, 401, 403, 404, 429, 500];
-      statuses.forEach((status) => {
-        expect(status >= 400).toBe(true);
-      });
-    });
+    const request = (global.fetch as jest.Mock).mock.calls[0][1] as RequestInit;
+    const headers = request.headers as Headers;
+    expect(headers.has('Content-Type')).toBe(false);
+    expect(headers.has('Authorization')).toBe(false);
+  });
 
-    it('should validate response JSON parsing', () => {
-      const validJson = '{"key": "value"}';
-      expect(() => JSON.parse(validJson)).not.toThrow();
+  it('clears authentication and redirects after a 401 response', async () => {
+    setToken('expired-token');
+    (global.fetch as jest.Mock).mockResolvedValue(responseWithStatus(401));
 
-      const invalidJson = '{invalid json}';
-      expect(() => JSON.parse(invalidJson)).toThrow();
-    });
+    await apiFetch('/api/v1/private');
+
+    expect(getToken()).toBeNull();
+    expect(redirectToExternal).toHaveBeenCalledWith('/login');
+  });
+
+  it('dispatches the quota event after a 429 response', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue(responseWithStatus(429));
+
+    await apiFetch('/api/v1/limited');
+
+    expect(window.dispatchEvent).toHaveBeenCalledWith(expect.any(CustomEvent));
+    const event = (window.dispatchEvent as jest.Mock).mock.calls[0][0] as CustomEvent;
+    expect(event.type).toBe('api:quota-exceeded');
+  });
+
+  it('returns other responses unchanged', async () => {
+    const response = responseWithStatus(500);
+    (global.fetch as jest.Mock).mockResolvedValue(response);
+
+    await expect(apiFetch('/api/v1/failure')).resolves.toBe(response);
+  });
+
+  it('propagates network errors', async () => {
+    (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+    await expect(apiFetch('/api/v1/test')).rejects.toThrow('Network error');
   });
 });
-
