@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1120" viewBox="0 0 1920 1120">
+  <defs>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .eyebrow { font-family: Arial, sans-serif; font-size: 15px; font-weight: 700; fill: #3157a4; }
+      .title { font-family: Arial, sans-serif; font-size: 42px; font-weight: 700; fill: #101828; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 18px; font-weight: 400; fill: #667085; }
+      .group-label { font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; fill: #667085; }
+      .relation { fill: none; stroke: #344054; stroke-width: 2; stroke-linejoin: round; }
+      .relation.dependency { stroke-dasharray: 7 6; }
+      .relation-label { font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; fill: #475467; }
+      .multiplicity { font-family: Arial, sans-serif; font-size: 11px; font-weight: 700; fill: #344054; }
+      .card-body { fill: #fff; stroke-width: 1.5; }
+      .card-auth { stroke: #8eabe5; }
+      .card-ai { stroke: #b39ddb; }
+      .card-data { stroke: #75c5b6; }
+      .card-pipeline { stroke: #e7ad59; }
+      .head-auth { fill: #edf3ff; }
+      .head-ai { fill: #f5f0ff; }
+      .head-data { fill: #eefaf7; }
+      .head-pipeline { fill: #fff7ea; }
+      .head-rule { stroke: #d7deea; stroke-width: 1; }
+      .table-name { font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; fill: #172033; }
+      .owner { font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; fill: #667085; }
+      .field { font-family: Menlo, Consolas, monospace; font-size: 11px; font-weight: 400; fill: #172033; }
+      .field-type { font-family: Menlo, Consolas, monospace; font-size: 11px; font-weight: 400; fill: #667085; text-anchor: end; }
+      .tag { font-family: Arial, sans-serif; font-size: 8px; font-weight: 700; }
+      .tag-pk { fill: #2454a6; }
+      .tag-fk { fill: #087869; }
+      .tag-uq { fill: #7541a8; }
+      .tag-check { fill: #985b00; }
+      .tag-ref { fill: #6f5b96; }
+      .note-band { fill: #eef2f7; }
+      .label-bg { fill: #f6f8fb; }
+      .note { font-family: Arial, sans-serif; font-size: 11px; font-weight: 400; fill: #536078; }
+      .note-strong { font-weight: 700; fill: #344054; }
+    </style>
+    <marker id="open-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#344054" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1920" height="1120"/>
+  <text class="eyebrow" x="64" y="54">DATA ARCHITECTURE / RELATIONAL SCHEMA</text>
+  <text class="title" x="64" y="108">Database Design</text>
+  <text class="subtitle" x="64" y="143">PostgreSQL 16 with pgvector · physical tables, constraints, and ownership</text>
+
+  <text class="group-label" x="64" y="205">IDENTITY &amp; BILLING</text>
+  <text class="group-label" x="1020" y="205">ASSESSMENT &amp; WORKFLOW</text>
+  <text class="group-label" x="1510" y="205">KNOWLEDGE &amp; CONFIGURATION</text>
+
+  <!-- UML associations with multiplicity labels at both entity ends. -->
+  <path class="relation" d="M454 325 H570"/>
+
+  <path class="relation" d="M494 644 H540 V345 H570"/>
+
+  <path class="relation dependency" d="M1020 556 H985 V325 H930" marker-end="url(#open-arrow)"/>
+
+  <path class="relation dependency" d="M1020 850 H1002 V345 H930" marker-end="url(#open-arrow)"/>
+
+  <path class="relation dependency" d="M1470 367 H1502 V829 H1470" marker-end="url(#open-arrow)"/>
+
+  <!-- Native SVG table cards remain fully editable when imported into Figma. -->
+  <g id="users">
+    <rect class="card-body card-auth" x="570" y="230" width="360" height="350" rx="7"/>
+    <path class="head-auth" d="M577 230 H923 Q930 230 930 237 V288 H570 V237 Q570 230 577 230 Z"/>
+    <line class="head-rule" x1="570" y1="288" x2="930" y2="288"/>
+    <text class="table-name" x="583" y="255">users</text><text class="owner" x="583" y="274">API GATEWAY · IDENTITY</text>
+    <text class="field" x="583" y="307">id <tspan class="tag tag-pk">PK</tspan></text><text class="field-type" x="917" y="307">SERIAL</text>
+    <text class="field" x="583" y="328">user_id <tspan class="tag tag-uq">UQ</tspan></text><text class="field-type" x="917" y="328">TEXT</text>
+    <text class="field" x="583" y="349">email <tspan class="tag tag-uq">UQ</tspan></text><text class="field-type" x="917" y="349">TEXT</text>
+    <text class="field" x="583" y="370">hashed_password</text><text class="field-type" x="917" y="370">TEXT</text>
+    <text class="field" x="583" y="391">is_active</text><text class="field-type" x="917" y="391">BOOLEAN</text>
+    <text class="field" x="583" y="412">created_at</text><text class="field-type" x="917" y="412">TIMESTAMPTZ</text>
+  </g>
+
+  <g id="user-roles">
+    <rect class="card-body card-auth" x="64" y="230" width="390" height="280" rx="7"/>
+    <path class="head-auth" d="M71 230 H447 Q454 230 454 237 V288 H64 V237 Q64 230 71 230 Z"/>
+    <line class="head-rule" x1="64" y1="288" x2="454" y2="288"/>
+    <text class="table-name" x="77" y="255">user_roles</text><text class="owner" x="77" y="274">API GATEWAY · RBAC</text>
+    <text class="field" x="77" y="307">id <tspan class="tag tag-pk">PK</tspan></text><text class="field-type" x="441" y="307">SERIAL</text>
+    <text class="field" x="77" y="328">user_id <tspan class="tag tag-fk">FK</tspan> <tspan class="tag tag-uq">UQ*</tspan></text><text class="field-type" x="441" y="328">TEXT</text>
+    <text class="field" x="77" y="349">role <tspan class="tag tag-check">CHECK</tspan> <tspan class="tag tag-uq">UQ*</tspan></text><text class="field-type" x="441" y="349">TEXT</text>
+    <text class="field" x="77" y="370">granted_by</text><text class="field-type" x="441" y="370">TEXT</text>
+    <text class="field" x="77" y="391">granted_at</text><text class="field-type" x="441" y="391">TIMESTAMPTZ</text>
+    <text class="field" x="77" y="412">* UNIQUE (user_id, role)</text>
+  </g>
+
+  <g id="subscriptions">
+    <rect class="card-body card-auth" x="64" y="570" width="430" height="400" rx="7"/>
+    <path class="head-auth" d="M71 570 H487 Q494 570 494 577 V628 H64 V577 Q64 570 71 570 Z"/>
+    <line class="head-rule" x1="64" y1="628" x2="494" y2="628"/>
+    <text class="table-name" x="77" y="595">subscriptions</text><text class="owner" x="77" y="614">API GATEWAY · BILLING</text>
+    <text class="field" x="77" y="647">user_id <tspan class="tag tag-pk">PK</tspan> <tspan class="tag tag-fk">FK</tspan></text><text class="field-type" x="481" y="647">TEXT</text>
+    <text class="field" x="77" y="668">stripe_customer_id <tspan class="tag tag-uq">UQ</tspan></text><text class="field-type" x="481" y="668">TEXT</text>
+    <text class="field" x="77" y="689">stripe_subscription_id <tspan class="tag tag-uq">UQ</tspan></text><text class="field-type" x="481" y="689">TEXT</text>
+    <text class="field" x="77" y="710">stripe_price_id</text><text class="field-type" x="481" y="710">TEXT</text>
+    <text class="field" x="77" y="731">plan</text><text class="field-type" x="481" y="731">TEXT</text>
+    <text class="field" x="77" y="752">status</text><text class="field-type" x="481" y="752">TEXT</text>
+    <text class="field" x="77" y="773">current_period_end</text><text class="field-type" x="481" y="773">TIMESTAMPTZ</text>
+    <text class="field" x="77" y="794">cancel_at_period_end</text><text class="field-type" x="481" y="794">BOOLEAN</text>
+    <text class="field" x="77" y="815">updated_at</text><text class="field-type" x="481" y="815">TIMESTAMPTZ</text>
+  </g>
+
+  <g id="review-queue">
+    <rect class="card-body card-ai" x="1020" y="230" width="450" height="525" rx="7"/>
+    <path class="head-ai" d="M1027 230 H1463 Q1470 230 1470 237 V288 H1020 V237 Q1020 230 1027 230 Z"/>
+    <line class="head-rule" x1="1020" y1="288" x2="1470" y2="288"/>
+    <text class="table-name" x="1033" y="255">review_queue</text><text class="owner" x="1033" y="274">AI INFERENCE · HUMAN REVIEW</text>
+    <text class="field" x="1033" y="307">id <tspan class="tag tag-pk">PK</tspan></text><text class="field-type" x="1457" y="307">SERIAL</text>
+    <text class="field" x="1033" y="328">review_id <tspan class="tag tag-uq">UQ</tspan></text><text class="field-type" x="1457" y="328">VARCHAR(36)</text>
+    <text class="field" x="1033" y="349">inference_id <tspan class="tag tag-uq">UQ</tspan></text><text class="field-type" x="1457" y="349">VARCHAR(36)</text>
+    <text class="field" x="1033" y="370">document_id <tspan class="tag tag-ref">REF</tspan></text><text class="field-type" x="1457" y="370">VARCHAR(255)</text>
+    <text class="field" x="1033" y="391">text_hash</text><text class="field-type" x="1457" y="391">VARCHAR(64)</text>
+    <text class="field" x="1033" y="412">text_preview</text><text class="field-type" x="1457" y="412">TEXT</text>
+    <text class="field" x="1033" y="433">ai_score</text><text class="field-type" x="1457" y="433">DOUBLE</text>
+    <text class="field" x="1033" y="454">ai_confidence</text><text class="field-type" x="1457" y="454">DOUBLE</text>
+    <text class="field" x="1033" y="475">ai_feedback</text><text class="field-type" x="1457" y="475">TEXT</text>
+    <text class="field" x="1033" y="496">rubric_json</text><text class="field-type" x="1457" y="496">JSON</text>
+    <text class="field" x="1033" y="517">flag_reason</text><text class="field-type" x="1457" y="517">VARCHAR(50)</text>
+    <text class="field" x="1033" y="538">status</text><text class="field-type" x="1457" y="538">VARCHAR(20)</text>
+    <text class="field" x="1033" y="559">reviewer_id <tspan class="tag tag-ref">REF</tspan></text><text class="field-type" x="1457" y="559">VARCHAR(255)</text>
+    <text class="field" x="1033" y="580">reviewer_score</text><text class="field-type" x="1457" y="580">DOUBLE</text>
+    <text class="field" x="1033" y="601">reviewer_notes</text><text class="field-type" x="1457" y="601">TEXT</text>
+    <text class="field" x="1033" y="622">created_at</text><text class="field-type" x="1457" y="622">TIMESTAMP</text>
+    <text class="field" x="1033" y="643">assigned_at</text><text class="field-type" x="1457" y="643">TIMESTAMP</text>
+    <text class="field" x="1033" y="664">resolved_at</text><text class="field-type" x="1457" y="664">TIMESTAMP</text>
+  </g>
+
+  <g id="pipeline-results">
+    <rect class="card-body card-pipeline" x="1020" y="755" width="450" height="215" rx="7"/>
+    <path class="head-pipeline" d="M1027 755 H1463 Q1470 755 1470 762 V813 H1020 V762 Q1020 755 1027 755 Z"/>
+    <line class="head-rule" x1="1020" y1="813" x2="1470" y2="813"/>
+    <text class="table-name" x="1033" y="780">pipeline_results</text><text class="owner" x="1033" y="799">DOCUMENT PIPELINE</text>
+    <text class="field" x="1033" y="832">document_id <tspan class="tag tag-pk">PK</tspan></text><text class="field-type" x="1457" y="832">TEXT</text>
+    <text class="field" x="1033" y="853">user_id <tspan class="tag tag-ref">REF</tspan></text><text class="field-type" x="1457" y="853">TEXT</text>
+    <text class="field" x="1033" y="874">filename</text><text class="field-type" x="1457" y="874">TEXT</text>
+    <text class="field" x="1033" y="895">status</text><text class="field-type" x="1457" y="895">TEXT</text>
+    <text class="field" x="1033" y="916">result_json</text><text class="field-type" x="1457" y="916">JSONB</text>
+    <text class="field" x="1033" y="937">created_at</text><text class="field-type" x="1457" y="937">TIMESTAMPTZ</text>
+  </g>
+
+  <g id="rubric-dimensions">
+    <rect class="card-body card-ai" x="1510" y="230" width="345" height="350" rx="7"/>
+    <path class="head-ai" d="M1517 230 H1848 Q1855 230 1855 237 V288 H1510 V237 Q1510 230 1517 230 Z"/>
+    <line class="head-rule" x1="1510" y1="288" x2="1855" y2="288"/>
+    <text class="table-name" x="1523" y="255">rubric_dimensions</text><text class="owner" x="1523" y="274">AI INFERENCE · CONFIGURATION</text>
+    <text class="field" x="1523" y="307">id <tspan class="tag tag-pk">PK</tspan></text><text class="field-type" x="1842" y="307">SERIAL</text>
+    <text class="field" x="1523" y="328">dimension <tspan class="tag tag-uq">UQ*</tspan></text><text class="field-type" x="1842" y="328">VARCHAR(50)</text>
+    <text class="field" x="1523" y="349">language <tspan class="tag tag-uq">UQ*</tspan></text><text class="field-type" x="1842" y="349">VARCHAR(10)</text>
+    <text class="field" x="1523" y="370">max_score</text><text class="field-type" x="1842" y="370">DOUBLE</text>
+    <text class="field" x="1523" y="391">description</text><text class="field-type" x="1842" y="391">TEXT</text>
+    <text class="field" x="1523" y="412">display_order</text><text class="field-type" x="1842" y="412">INTEGER</text>
+    <text class="field" x="1523" y="433">is_active</text><text class="field-type" x="1842" y="433">BOOLEAN</text>
+    <text class="field" x="1523" y="454">updated_at</text><text class="field-type" x="1842" y="454">TIMESTAMP</text>
+    <text class="field" x="1523" y="475">updated_by</text><text class="field-type" x="1842" y="475">VARCHAR(255)</text>
+    <text class="field" x="1523" y="496">* UNIQUE (dimension, language)</text>
+  </g>
+
+  <g id="document-embeddings">
+    <rect class="card-body card-data" x="1510" y="620" width="345" height="315" rx="7"/>
+    <path class="head-data" d="M1517 620 H1848 Q1855 620 1855 627 V678 H1510 V627 Q1510 620 1517 620 Z"/>
+    <line class="head-rule" x1="1510" y1="678" x2="1855" y2="678"/>
+    <text class="table-name" x="1523" y="645">document_embeddings</text><text class="owner" x="1523" y="664">KNOWLEDGE RETRIEVAL</text>
+    <text class="field" x="1523" y="697">id <tspan class="tag tag-pk">PK</tspan></text><text class="field-type" x="1842" y="697">SERIAL</text>
+    <text class="field" x="1523" y="718">document_id <tspan class="tag tag-uq">UQ</tspan></text><text class="field-type" x="1842" y="718">TEXT</text>
+    <text class="field" x="1523" y="739">content</text><text class="field-type" x="1842" y="739">TEXT</text>
+    <text class="field" x="1523" y="760">embedding</text><text class="field-type" x="1842" y="760">vector(384)</text>
+    <text class="field" x="1523" y="781">metadata</text><text class="field-type" x="1842" y="781">JSONB</text>
+    <text class="field" x="1523" y="802">created_at</text><text class="field-type" x="1842" y="802">TIMESTAMPTZ</text>
+    <text class="field" x="1523" y="823">HNSW (cosine) on embedding</text><text class="field-type" x="1842" y="823">INDEX</text>
+  </g>
+
+  <!-- Relationship annotations sit above the cards so Figma cannot hide them. -->
+  <g id="relationship-annotations">
+    <rect class="label-bg" x="488" y="303" width="35" height="16" rx="2"/>
+    <text class="relation-label" x="505.5" y="315" text-anchor="middle">roles</text>
+    <rect class="label-bg" x="457" y="329" width="30" height="16" rx="2"/>
+    <text class="multiplicity" x="472" y="341" text-anchor="middle">0..*</text>
+    <rect class="label-bg" x="551" y="303" width="14" height="16" rx="2"/>
+    <text class="multiplicity" x="558" y="315" text-anchor="middle">1</text>
+
+    <rect class="label-bg" x="496" y="614" width="72" height="16" rx="2"/>
+    <text class="relation-label" x="532" y="626" text-anchor="middle">subscription</text>
+    <rect class="label-bg" x="497" y="649" width="31" height="16" rx="2"/>
+    <text class="multiplicity" x="512.5" y="661" text-anchor="middle">0..1</text>
+    <rect class="label-bg" x="551" y="329" width="14" height="16" rx="2"/>
+    <text class="multiplicity" x="558" y="341" text-anchor="middle">1</text>
+
+    <rect class="label-bg" x="936" y="562" width="65" height="16" rx="2"/>
+    <text class="relation-label" x="968.5" y="574" text-anchor="middle">reviewer_id</text>
+    <rect class="label-bg" x="957" y="856" width="44" height="16" rx="2"/>
+    <text class="relation-label" x="979" y="868" text-anchor="middle">user_id</text>
+    <g transform="translate(1488 600) rotate(-90)">
+      <rect class="label-bg" x="-42" y="-11" width="84" height="16" rx="2"/>
+      <text class="relation-label" x="0" y="1" text-anchor="middle">document_id</text>
+    </g>
+  </g>
+
+  <rect class="note-band" x="64" y="970" width="1792" height="60" rx="5"/>
+  <text class="note" x="80" y="992"><tspan class="note-strong">UML association:</tspan> 1 = exactly one · 0..1 = zero or one · 1..* = one or many · 0..* = zero or many</text>
+  <text class="note" x="80" y="1015"><tspan class="note-strong">Relations:</tspan> solid = declared-FK association · dashed open arrow = &lt;&lt;logical reference&gt;&gt; dependency · <tspan class="note-strong">Keys:</tspan> PK = primary key · FK = foreign key · UQ = unique · CHECK = check constraint · REF = application-resolved identifier without a declared FK</text>
+</svg>
