@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .eyebrow { font-family: Arial, sans-serif; font-size: 15px; font-weight: 700; fill: #3157a4; }
+      .title { font-family: Arial, sans-serif; font-size: 40px; font-weight: 700; fill: #101828; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 17px; fill: #667085; }
+      .actor { fill: #ffffff; stroke: #7898d4; stroke-width: 1.5; }
+      .object { fill: #ffffff; stroke: #91a4bf; stroke-width: 1.5; }
+      .object-service { stroke: #55a99a; }
+      .object-external { stroke: #e0a04b; }
+      .object-head { fill: #eaf1ff; }
+      .service-head { fill: #eaf8f5; }
+      .external-head { fill: #fff5e6; }
+      .stereo { font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; fill: #667085; }
+      .name { font-family: Arial, sans-serif; font-size: 15px; font-weight: 700; fill: #172033; }
+      .lifeline { stroke: #98a2b3; stroke-width: 1.2; stroke-dasharray: 6 6; }
+      .activation { fill: #eaf1ff; stroke: #7898d4; stroke-width: 1; }
+      .activation-service { fill: #eaf8f5; stroke: #55a99a; }
+      .activation-external { fill: #fff5e6; stroke: #e0a04b; }
+      .message { fill: none; stroke: #344054; stroke-width: 1.7; }
+      .return { stroke-dasharray: 6 5; }
+      .message-text { font-family: Menlo, Consolas, monospace; font-size: 11px; fill: #344054; }
+      .step { fill: #3157a4; }
+      .step-text { font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; fill: #ffffff; text-anchor: middle; }
+      .frame { fill: none; stroke: #98a2b3; stroke-width: 1.2; }
+      .frame-tab { fill: #eef2f7; stroke: #98a2b3; stroke-width: 1.2; }
+      .frame-text { font-family: Arial, sans-serif; font-size: 11px; font-weight: 700; fill: #475467; }
+      .note-band { fill: #eef2f7; }
+      .note { font-family: Arial, sans-serif; font-size: 11px; fill: #536078; }
+      .note-strong { font-weight: 700; fill: #344054; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1 L9 5 L1 9 Z" fill="#344054"/>
+    </marker>
+    <marker id="open-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#344054" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1920" height="1080"/>
+  <text class="eyebrow" x="64" y="52">DETAILED SOFTWARE DESIGN / OBJECT INTERACTION</text>
+  <text class="title" x="64" y="104">Frontend Object Interaction Design</text>
+  <text class="subtitle" x="64" y="138">Runtime collaboration between browser objects and the backend boundary.</text>
+
+  <!-- Object headers -->
+  <g id="student">
+    <rect class="actor" x="80" y="190" width="190" height="82" rx="7"/>
+    <rect class="object-head" x="80" y="190" width="190" height="29" rx="7"/>
+    <text class="stereo" x="175" y="210" text-anchor="middle">&lt;&lt;actor&gt;&gt;</text>
+    <text class="name" x="175" y="247" text-anchor="middle">student: User</text>
+  </g>
+  <g id="upload-object">
+    <rect class="object" x="355" y="190" width="220" height="82" rx="7"/>
+    <rect class="object-head" x="355" y="190" width="220" height="29" rx="7"/>
+    <text class="stereo" x="465" y="210" text-anchor="middle">&lt;&lt;React component&gt;&gt;</text>
+    <text class="name" x="465" y="247" text-anchor="middle">upload: Upload</text>
+  </g>
+  <g id="form-data">
+    <rect class="object" x="650" y="190" width="210" height="82" rx="7"/>
+    <rect class="object-head" x="650" y="190" width="210" height="29" rx="7"/>
+    <text class="stereo" x="755" y="210" text-anchor="middle">&lt;&lt;browser object&gt;&gt;</text>
+    <text class="name" x="755" y="247" text-anchor="middle">form: FormData</text>
+  </g>
+  <g id="api-fetch">
+    <rect class="object object-service" x="935" y="190" width="210" height="82" rx="7"/>
+    <rect class="service-head" x="935" y="190" width="210" height="29" rx="7"/>
+    <text class="stereo" x="1040" y="210" text-anchor="middle">&lt;&lt;service function&gt;&gt;</text>
+    <text class="name" x="1040" y="247" text-anchor="middle">api: apiFetch</text>
+  </g>
+  <g id="storage-object">
+    <rect class="object object-service" x="1215" y="190" width="210" height="82" rx="7"/>
+    <rect class="service-head" x="1215" y="190" width="210" height="29" rx="7"/>
+    <text class="stereo" x="1320" y="210" text-anchor="middle">&lt;&lt;browser object&gt;&gt;</text>
+    <text class="name" x="1320" y="247" text-anchor="middle">store: localStorage</text>
+  </g>
+  <g id="gateway-object">
+    <rect class="object object-external" x="1500" y="190" width="250" height="82" rx="7"/>
+    <rect class="external-head" x="1500" y="190" width="250" height="29" rx="7"/>
+    <text class="stereo" x="1625" y="210" text-anchor="middle">&lt;&lt;external service&gt;&gt;</text>
+    <text class="name" x="1625" y="247" text-anchor="middle">gateway: API Gateway</text>
+  </g>
+
+  <!-- Lifelines -->
+  <line class="lifeline" x1="175" y1="272" x2="175" y2="934"/>
+  <line class="lifeline" x1="465" y1="272" x2="465" y2="934"/>
+  <line class="lifeline" x1="755" y1="272" x2="755" y2="934"/>
+  <line class="lifeline" x1="1040" y1="272" x2="1040" y2="934"/>
+  <line class="lifeline" x1="1320" y1="272" x2="1320" y2="934"/>
+  <line class="lifeline" x1="1625" y1="272" x2="1625" y2="934"/>
+
+  <!-- Activations -->
+  <rect class="activation" x="458" y="330" width="14" height="555"/>
+  <rect class="activation" x="748" y="448" width="14" height="82"/>
+  <rect class="activation activation-service" x="1033" y="555" width="14" height="238"/>
+  <rect class="activation activation-service" x="1313" y="592" width="14" height="48"/>
+  <rect class="activation activation-external" x="1618" y="674" width="14" height="72"/>
+
+  <!-- Messages -->
+  <circle class="step" cx="205" cy="332" r="11"/><text class="step-text" x="205" y="336">1</text>
+  <path class="message" d="M175 332 H458" marker-end="url(#arrow)"/>
+  <text class="message-text" x="238" y="323">selectFile(file)</text>
+
+  <circle class="step" cx="205" cy="390" r="11"/><text class="step-text" x="205" y="394">2</text>
+  <path class="message" d="M175 390 H458" marker-end="url(#arrow)"/>
+  <text class="message-text" x="238" y="381">handleUpload()</text>
+
+  <circle class="step" cx="495" cy="450" r="11"/><text class="step-text" x="495" y="454">3</text>
+  <path class="message" d="M472 450 H748" marker-end="url(#arrow)"/>
+  <text class="message-text" x="535" y="441">new FormData()</text>
+  <path class="message" d="M472 492 H748" marker-end="url(#arrow)"/>
+  <text class="message-text" x="535" y="483">append(&quot;file&quot;, file)</text>
+  <path class="message return" d="M748 522 H472" marker-end="url(#open-arrow)"/>
+  <text class="message-text" x="560" y="515">form</text>
+
+  <circle class="step" cx="495" cy="557" r="11"/><text class="step-text" x="495" y="561">4</text>
+  <path class="message" d="M472 557 H1033" marker-end="url(#arrow)"/>
+  <text class="message-text" x="600" y="548">apiFetch(processPath, POST + form)</text>
+
+  <circle class="step" cx="1070" cy="594" r="11"/><text class="step-text" x="1070" y="598">5</text>
+  <path class="message" d="M1047 594 H1313" marker-end="url(#arrow)"/>
+  <text class="message-text" x="1110" y="585">getItem(TOKEN_KEY)</text>
+  <path class="message return" d="M1313 632 H1047" marker-end="url(#open-arrow)"/>
+  <text class="message-text" x="1145" y="625">token?</text>
+
+  <circle class="step" cx="1070" cy="676" r="11"/><text class="step-text" x="1070" y="680">6</text>
+  <path class="message" d="M1047 676 H1618" marker-end="url(#arrow)"/>
+  <text class="message-text" x="1160" y="667">POST multipart + Authorization: Bearer token</text>
+  <path class="message return" d="M1618 738 H1047" marker-end="url(#open-arrow)"/>
+  <text class="message-text" x="1260" y="731">200 Response + pipeline result JSON</text>
+
+  <circle class="step" cx="1070" cy="778" r="11"/><text class="step-text" x="1070" y="782">7</text>
+  <path class="message return" d="M1033 778 H472" marker-end="url(#open-arrow)"/>
+  <text class="message-text" x="675" y="771">Response</text>
+
+  <circle class="step" cx="495" cy="824" r="11"/><text class="step-text" x="495" y="828">8</text>
+  <path class="message" d="M472 824 H610 V852 H472" marker-end="url(#arrow)"/>
+  <text class="message-text" x="625" y="830">response.json() as UploadResult</text>
+  <text class="message-text" x="625" y="852">setResult(result)</text>
+
+  <circle class="step" cx="205" cy="884" r="11"/><text class="step-text" x="205" y="888">9</text>
+  <path class="message return" d="M458 884 H175" marker-end="url(#open-arrow)"/>
+  <text class="message-text" x="237" y="877">render processing result</text>
+
+  <rect class="note-band" x="64" y="965" width="1792" height="62" rx="5"/>
+  <text class="note" x="82" y="990"><tspan class="note-strong">Object scope:</tspan> the diagram ends at the public API boundary; backend processing is represented by the synchronous API response observed by the frontend.</text>
+  <text class="note" x="82" y="1014"><tspan class="note-strong">Failure behaviour:</tspan> non-success responses populate component error state; shared API handling clears an invalid token and redirects an unauthorised request to login.</text>
+</svg>

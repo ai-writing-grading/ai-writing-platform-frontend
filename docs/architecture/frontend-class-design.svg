@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .eyebrow { font-family: Arial, sans-serif; font-size: 15px; font-weight: 700; fill: #3157a4; }
+      .title { font-family: Arial, sans-serif; font-size: 40px; font-weight: 700; fill: #101828; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 17px; fill: #667085; }
+      .group { fill: none; stroke: #cbd5e1; stroke-width: 1.5; stroke-dasharray: 7 6; }
+      .group-title { font-family: Arial, sans-serif; font-size: 12px; font-weight: 700; fill: #667085; }
+      .box { fill: #fff; stroke-width: 1.5; }
+      .boundary { stroke: #7898d4; }
+      .control { stroke: #55a99a; }
+      .entity { stroke: #aa8bd7; }
+      .head-boundary { fill: #eaf1ff; }
+      .head-control { fill: #eaf8f5; }
+      .head-entity { fill: #f4effc; }
+      .rule { stroke: #d8e0eb; stroke-width: 1; }
+      .stereo { font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; fill: #667085; }
+      .name { font-family: Arial, sans-serif; font-size: 17px; font-weight: 700; fill: #172033; }
+      .member { font-family: Menlo, Consolas, monospace; font-size: 11px; fill: #344054; }
+      .relation { fill: none; stroke: #475467; stroke-width: 1.7; }
+      .dependency { stroke-dasharray: 7 6; }
+      .label-bg { fill: #f6f8fb; }
+      .label { font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; fill: #475467; }
+      .multiplicity { font-family: Arial, sans-serif; font-size: 11px; font-weight: 700; fill: #344054; }
+      .note-band { fill: #eef2f7; }
+      .note { font-family: Arial, sans-serif; font-size: 11px; fill: #536078; }
+      .note-strong { font-weight: 700; fill: #344054; }
+    </style>
+    <marker id="open-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#475467" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="diamond" viewBox="0 0 12 8" refX="1" refY="4" markerWidth="12" markerHeight="8" orient="auto">
+      <path d="M1 4 L5 1 L9 4 L5 7 Z" fill="#475467" stroke="#475467" stroke-width="1.2"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1920" height="1080"/>
+  <text class="eyebrow" x="64" y="52">DETAILED SOFTWARE DESIGN / ANALYSIS MODEL</text>
+  <text class="title" x="64" y="104">Frontend Analysis Object Model</text>
+  <text class="subtitle" x="64" y="138">Boundary, control, and entity responsibilities for document submission and assessment</text>
+
+  <rect class="group" x="64" y="185" width="510" height="710" rx="7"/>
+  <text class="group-title" x="82" y="211">BOUNDARY OBJECTS</text>
+  <rect class="group" x="605" y="185" width="650" height="710" rx="7"/>
+  <text class="group-title" x="623" y="211">CONTROL OBJECTS</text>
+  <rect class="group" x="1285" y="185" width="570" height="710" rx="7"/>
+  <text class="group-title" x="1303" y="211">ENTITY OBJECTS</text>
+
+  <!-- Analysis relationships are behind the object classifiers. -->
+  <path class="relation dependency" d="M484 345 H655" marker-end="url(#open-arrow)"/>
+  <path class="relation dependency" d="M484 555 H620 V640 H655" marker-end="url(#open-arrow)"/>
+  <path class="relation dependency" d="M484 765 H620 V680 H655" marker-end="url(#open-arrow)"/>
+  <path class="relation dependency" d="M925 335 H975 V470 H1015" marker-end="url(#open-arrow)"/>
+  <path class="relation dependency" d="M925 655 H975 V530 H1015" marker-end="url(#open-arrow)"/>
+  <path class="relation dependency" d="M925 300 H1270 V315 H1315" marker-end="url(#open-arrow)"/>
+  <path class="relation dependency" d="M925 605 H1225 V370 H1315" marker-end="url(#open-arrow)"/>
+  <path class="relation" d="M1435 430 V505" marker-start="url(#diamond)"/>
+  <path class="relation" d="M1435 685 V740 H1585" marker-start="url(#diamond)"/>
+
+  <!-- Boundaries -->
+  <g id="upload-page">
+    <rect class="box boundary" x="104" y="245" width="380" height="200" rx="7"/>
+    <path class="head-boundary" d="M111 245 H477 Q484 245 484 252 V304 H104 V252 Q104 245 111 245 Z"/>
+    <line class="rule" x1="104" y1="304" x2="484" y2="304"/>
+    <text class="stereo" x="118" y="264">&lt;&lt;boundary&gt;&gt;</text><text class="name" x="118" y="288">Upload Page</text>
+    <text class="member" x="118" y="327">+ selectFile(file)</text><text class="member" x="118" y="349">+ submit()</text>
+    <text class="member" x="118" y="371">+ displayProgress()</text><text class="member" x="118" y="393">+ displayResult(result)</text>
+    <text class="member" x="118" y="415">+ displayError(message)</text>
+  </g>
+  <g id="dashboard-page">
+    <rect class="box boundary" x="104" y="485" width="380" height="140" rx="7"/>
+    <path class="head-boundary" d="M111 485 H477 Q484 485 484 492 V544 H104 V492 Q104 485 111 485 Z"/>
+    <line class="rule" x1="104" y1="544" x2="484" y2="544"/>
+    <text class="stereo" x="118" y="504">&lt;&lt;boundary&gt;&gt;</text><text class="name" x="118" y="528">Dashboard Page</text>
+    <text class="member" x="118" y="567">+ requestHistory()</text><text class="member" x="118" y="589">+ displayDocuments(documents)</text>
+  </g>
+  <g id="details-page">
+    <rect class="box boundary" x="104" y="695" width="380" height="140" rx="7"/>
+    <path class="head-boundary" d="M111 695 H477 Q484 695 484 702 V754 H104 V702 Q104 695 111 695 Z"/>
+    <line class="rule" x1="104" y1="754" x2="484" y2="754"/>
+    <text class="stereo" x="118" y="714">&lt;&lt;boundary&gt;&gt;</text><text class="name" x="118" y="738">Document Details Page</text>
+    <text class="member" x="118" y="777">+ requestDocument(documentId)</text><text class="member" x="118" y="799">+ displayAssessment(result)</text>
+  </g>
+
+  <!-- Controls -->
+  <g id="upload-controller">
+    <rect class="box control" x="655" y="245" width="270" height="180" rx="7"/>
+    <path class="head-control" d="M662 245 H918 Q925 245 925 252 V304 H655 V252 Q655 245 662 245 Z"/>
+    <line class="rule" x1="655" y1="304" x2="925" y2="304"/>
+    <text class="stereo" x="669" y="264">&lt;&lt;control&gt;&gt;</text><text class="name" x="669" y="288">Upload Controller</text>
+    <text class="member" x="669" y="327">+ validateFile(file)</text><text class="member" x="669" y="349">+ createFormData(file)</text>
+    <text class="member" x="669" y="371">+ submitDocument(form)</text><text class="member" x="669" y="393">+ updateUploadState()</text>
+  </g>
+  <g id="query-controller">
+    <rect class="box control" x="655" y="555" width="270" height="160" rx="7"/>
+    <path class="head-control" d="M662 555 H918 Q925 555 925 562 V614 H655 V562 Q655 555 662 555 Z"/>
+    <line class="rule" x1="655" y1="614" x2="925" y2="614"/>
+    <text class="stereo" x="669" y="574">&lt;&lt;control&gt;&gt;</text><text class="name" x="669" y="598">Document Query Controller</text>
+    <text class="member" x="669" y="637">+ loadDocuments()</text><text class="member" x="669" y="659">+ loadDocument(documentId)</text>
+    <text class="member" x="669" y="681">+ updateViewState()</text>
+  </g>
+  <g id="api-client">
+    <rect class="box control" x="1015" y="385" width="210" height="230" rx="7"/>
+    <path class="head-control" d="M1022 385 H1218 Q1225 385 1225 392 V444 H1015 V392 Q1015 385 1022 385 Z"/>
+    <line class="rule" x1="1015" y1="444" x2="1225" y2="444"/>
+    <text class="stereo" x="1029" y="404">&lt;&lt;control&gt;&gt;</text><text class="name" x="1029" y="428">Authenticated API Client</text>
+    <text class="member" x="1029" y="467">+ request(path, options)</text><text class="member" x="1029" y="489">+ attachToken()</text>
+    <text class="member" x="1029" y="511">+ parseResponse()</text><text class="member" x="1029" y="533">+ handleUnauthorised()</text>
+    <text class="member" x="1029" y="555">+ signalQuotaExceeded()</text>
+  </g>
+
+  <!-- Entities -->
+  <g id="document">
+    <rect class="box entity" x="1315" y="235" width="240" height="195" rx="7"/>
+    <path class="head-entity" d="M1322 235 H1548 Q1555 235 1555 242 V294 H1315 V242 Q1315 235 1322 235 Z"/>
+    <line class="rule" x1="1315" y1="294" x2="1555" y2="294"/>
+    <text class="stereo" x="1329" y="254">&lt;&lt;entity&gt;&gt;</text><text class="name" x="1329" y="278">Document</text>
+    <text class="member" x="1329" y="317">documentId: string</text><text class="member" x="1329" y="339">filename: string</text>
+    <text class="member" x="1329" y="361">status: string</text><text class="member" x="1329" y="383">wordCount: number</text>
+    <text class="member" x="1329" y="405">processingTimeMs: number</text>
+  </g>
+  <g id="assessment-result">
+    <rect class="box entity" x="1315" y="505" width="240" height="180" rx="7"/>
+    <path class="head-entity" d="M1322 505 H1548 Q1555 505 1555 512 V564 H1315 V512 Q1315 505 1322 505 Z"/>
+    <line class="rule" x1="1315" y1="564" x2="1555" y2="564"/>
+    <text class="stereo" x="1329" y="524">&lt;&lt;entity&gt;&gt;</text><text class="name" x="1329" y="548">Assessment Result</text>
+    <text class="member" x="1329" y="587">score: number</text><text class="member" x="1329" y="609">grade: string</text>
+    <text class="member" x="1329" y="631">summary: string</text><text class="member" x="1329" y="653">modelUsed: string</text>
+  </g>
+  <g id="feedback-item">
+    <rect class="box entity" x="1585" y="705" width="240" height="160" rx="7"/>
+    <path class="head-entity" d="M1592 705 H1818 Q1825 705 1825 712 V764 H1585 V712 Q1585 705 1592 705 Z"/>
+    <line class="rule" x1="1585" y1="764" x2="1825" y2="764"/>
+    <text class="stereo" x="1599" y="724">&lt;&lt;entity&gt;&gt;</text><text class="name" x="1599" y="748">Feedback Item</text>
+    <text class="member" x="1599" y="787">category: string</text><text class="member" x="1599" y="809">severity: string</text>
+    <text class="member" x="1599" y="831">message: string</text><text class="member" x="1599" y="853">suggestion: string</text>
+  </g>
+
+  <!-- Labels above classifiers. -->
+  <g id="labels">
+    <rect class="label-bg" x="530" y="332" width="58" height="16" rx="2"/><text class="label" x="559" y="344" text-anchor="middle">submits</text>
+    <rect class="label-bg" x="932" y="389" width="68" height="16" rx="2"/><text class="label" x="966" y="401" text-anchor="middle">delegates</text>
+    <rect class="label-bg" x="932" y="617" width="68" height="16" rx="2"/><text class="label" x="966" y="629" text-anchor="middle">delegates</text>
+    <rect class="label-bg" x="1207" y="296" width="54" height="16" rx="2"/><text class="label" x="1234" y="308" text-anchor="middle">creates</text>
+    <rect class="label-bg" x="1207" y="352" width="46" height="16" rx="2"/><text class="label" x="1230" y="364" text-anchor="middle">loads</text>
+    <rect class="label-bg" x="1409" y="454" width="52" height="16" rx="2"/><text class="label" x="1435" y="466" text-anchor="middle">contains</text>
+    <rect class="label-bg" x="1517" y="716" width="52" height="16" rx="2"/><text class="label" x="1543" y="728" text-anchor="middle">contains</text>
+    <text class="multiplicity" x="1447" y="447">1</text><text class="multiplicity" x="1447" y="498">0..1</text>
+    <text class="multiplicity" x="1450" y="705">1</text><text class="multiplicity" x="1570" y="758">0..*</text>
+  </g>
+
+  <rect class="note-band" x="64" y="930" width="1792" height="62" rx="5"/>
+  <text class="note" x="82" y="955"><tspan class="note-strong">BCE notation:</tspan> boundary objects manage user interaction · control objects coordinate a use case · entity objects carry domain information.</text>
+  <text class="note" x="82" y="979"><tspan class="note-strong">Relations:</tspan> dashed open arrow = dependency · filled diamond = composition · multiplicities describe optional assessment and feedback collections.</text>
+</svg>
