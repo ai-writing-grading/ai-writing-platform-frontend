@@ -10,7 +10,10 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "jest",
-    "test:coverage": "jest --coverage --coverageDirectory=coverage"
+    "test:coverage": "jest --coverage --coverageDirectory=coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:local": "bash e2e/run-local.sh",
+    "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
     "@tanstack/react-router": "^1.169.2",
@@ -22,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.62.1",
     "@tanstack/router-devtools": "^1.166.13",
     "@tanstack/router-plugin": "^1.167.35",
     "@testing-library/jest-dom": "^6.9.1",

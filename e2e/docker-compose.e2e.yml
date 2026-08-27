@@ -1,0 +1,4 @@
+services:
+  pipelines:
+    environment:
+      AI_INFERENCE_MOCK: "true"
