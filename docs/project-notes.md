@@ -159,14 +159,24 @@ Stable business attributes use typed relational columns and constraints, while p
 
 # Detailed Software Design
 
-## Frontend Class and Object-Level Design
+## Frontend Class-Level Analysis and Design
+
+The following class- and object-level analysis uses the single-document assessment workflow as a representative frontend design slice. It covers document submission, history and result retrieval, and shared authenticated API access; editor, subscription, batch-processing, and administrative workflows are outside the scope of these diagrams.
 
 **[Insert Figure: Frontend Analysis Object Model]**
 
-The frontend analysis model applies the Boundary-Control-Entity pattern to the document assessment workflow. Upload, dashboard, and document-details pages are boundary objects responsible for user interaction and presentation. Upload and document-query controllers coordinate submission and retrieval use cases, while the authenticated API client centralises communication and authentication handling. Document, assessment-result, and feedback objects carry the information exchanged by these interactions.
+Within this scope, submission is separated from retrieval because it has file-specific responsibilities: checking the selected file, constructing a multipart request, and maintaining the pending, result, and error states of a single processing attempt. The dashboard and document-details boundaries instead depend on the same query control because both read stored pipeline results and differ only in the amount of information they present. They do not depend on upload state or repeat submission behaviour.
 
-The separation keeps presentation concerns out of the entity objects and prevents boundary objects from managing authentication or transport details directly. A document may have an assessment result once processing completes, and an assessment result may contain multiple feedback items. This model also maps to the implementation: page boundaries are realised by React route components, controller responsibilities are realised by their event and loading functions together with `apiFetch`, and entities are represented by TypeScript response interfaces.
+The authenticated API client is the shared browser-to-gateway control. It obtains the current JWT when a request is dispatched, adds the authorisation header, clears an invalid session after a `401` response, and publishes the quota event used for `429` responses. Endpoint selection and response interpretation remain with the upload and query controls because the processing, history, and detail operations return different data shapes. This keeps session and quota behaviour consistent without forcing unrelated document operations into one controller.
+
+The entity structure represents the states produced by the document pipeline. A `Document` can exist without an `Assessment Result`, allowing the same object to represent a document that is still processing or has failed before scoring. When scoring completes, the result belongs to that document and supplies the score, grade, summary, model identifier, and any feedback. A feedback item has no independent identity or retrieval path in the frontend; its lifecycle is tied to the assessment result. The optional and one-to-many relationships therefore encode processing state and response ownership rather than merely grouping related fields.
+
+## Frontend Object-Level Interaction Design
 
 **[Insert Figure: Frontend Object Interaction Design]**
 
-The object interaction view shows the runtime upload path. After the student selects a file, the `Upload` component creates a `FormData` object and delegates the request to `apiFetch`. The service function reads the current token and submits the multipart request to the API Gateway. On success, the component parses the response as an `UploadResult`, updates its result state, and React renders the processing summary. Failed responses update the component's error state, while shared authentication handling clears an invalid token and redirects an unauthorised request to the login route.
+The upload interaction creates a new `FormData` object for each submission and places the selected document in the `file` field required by the processing endpoint. The authenticated client leaves the multipart content type unset so that the browser can generate the correct boundary, then attaches the JWT immediately before dispatch. The file and credential are therefore combined only for the outgoing request; the upload boundary does not retain a separate copy of the token.
+
+The API client returns the gateway `Response` to the upload workflow rather than decoding it centrally. This is required because the upload workflow interprets a successful body as an `UploadResult`, whereas a failed body may contain an API `detail` message. The result state is assigned only after a successful response has been decoded. A non-success response instead updates the error state, and a `401` additionally triggers the shared token-clear and login-redirection behaviour. The two outcomes cannot populate result and error state from the same submission.
+
+Single-document processing uses a synchronous request-response interaction: the upload boundary remains in its pending state until the gateway returns the pipeline result. This provides the score and processing summary immediately after submission, but couples the duration of the interaction to parsing and assessment latency. The design is limited to the bounded single-file workflow; batch grading uses an asynchronous job and status-retrieval model elsewhere in the system.
