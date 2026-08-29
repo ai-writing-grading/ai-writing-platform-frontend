@@ -161,22 +161,50 @@ Stable business attributes use typed relational columns and constraints, while p
 
 ## Frontend Class-Level Analysis and Design
 
-The following class- and object-level analysis uses the single-document assessment workflow as a representative frontend design slice. It covers document submission, history and result retrieval, and shared authenticated API access; editor, subscription, batch-processing, and administrative workflows are outside the scope of these diagrams.
+The following analysis uses the single-document assessment workflow as a representative frontend design slice. It covers submission, result retrieval, and authenticated API access; other frontend workflows are outside the scope of these diagrams.
 
 **[Insert Figure: Frontend Analysis Object Model]**
 
-Within this scope, submission is separated from retrieval because it has file-specific responsibilities: checking the selected file, constructing a multipart request, and maintaining the pending, result, and error states of a single processing attempt. The dashboard and document-details boundaries instead depend on the same query control because both read stored pipeline results and differ only in the amount of information they present. They do not depend on upload state or repeat submission behaviour.
+Within this scope, submission and retrieval are assigned to separate controls. The upload control handles the file-specific workflow, including validation, multipart request construction, and the state of a processing attempt. The dashboard and document-details boundaries share a query control because both retrieve stored pipeline results. This keeps read-only views independent of upload state while avoiding duplicated query behaviour.
 
-The authenticated API client is the shared browser-to-gateway control. It obtains the current JWT when a request is dispatched, adds the authorisation header, clears an invalid session after a `401` response, and publishes the quota event used for `429` responses. Endpoint selection and response interpretation remain with the upload and query controls because the processing, history, and detail operations return different data shapes. This keeps session and quota behaviour consistent without forcing unrelated document operations into one controller.
+The authenticated API client centralises gateway concerns that must remain consistent across both controls: obtaining the current JWT, attaching the authorisation header, and handling `401` and `429` responses. The use-case controls still select their endpoints and interpret their responses because processing, history, and document-detail operations have different contracts.
 
-The entity structure represents the states produced by the document pipeline. A `Document` can exist without an `Assessment Result`, allowing the same object to represent a document that is still processing or has failed before scoring. When scoring completes, the result belongs to that document and supplies the score, grade, summary, model identifier, and any feedback. A feedback item has no independent identity or retrieval path in the frontend; its lifecycle is tied to the assessment result. The optional and one-to-many relationships therefore encode processing state and response ownership rather than merely grouping related fields.
+The entity relationships reflect the document pipeline lifecycle. A `Document` may exist without an `Assessment Result` while processing is incomplete or when failure occurs before scoring. Once produced, the assessment belongs to that document and owns zero or more feedback items; feedback is not retrieved or managed independently by the frontend.
 
 ## Frontend Object-Level Interaction Design
 
 **[Insert Figure: Frontend Object Interaction Design]**
 
-The upload interaction creates a new `FormData` object for each submission and places the selected document in the `file` field required by the processing endpoint. The authenticated client leaves the multipart content type unset so that the browser can generate the correct boundary, then attaches the JWT immediately before dispatch. The file and credential are therefore combined only for the outgoing request; the upload boundary does not retain a separate copy of the token.
+Each submission creates a new `FormData` object and places the selected document in the processing endpoint's `file` field. The authenticated client leaves the content type unset so that the browser supplies the multipart boundary, and it attaches the current JWT at dispatch rather than copying the token into upload state.
 
-The API client returns the gateway `Response` to the upload workflow rather than decoding it centrally. This is required because the upload workflow interprets a successful body as an `UploadResult`, whereas a failed body may contain an API `detail` message. The result state is assigned only after a successful response has been decoded. A non-success response instead updates the error state, and a `401` additionally triggers the shared token-clear and login-redirection behaviour. The two outcomes cannot populate result and error state from the same submission.
+The API client returns the raw gateway `Response` because the upload workflow parses successful content as an `UploadResult` and failed content as an API `detail` message. Result state is committed only after successful decoding; a failed response updates error state, while a `401` also clears the token and redirects to login.
 
-Single-document processing uses a synchronous request-response interaction: the upload boundary remains in its pending state until the gateway returns the pipeline result. This provides the score and processing summary immediately after submission, but couples the duration of the interaction to parsing and assessment latency. The design is limited to the bounded single-file workflow; batch grading uses an asynchronous job and status-retrieval model elsewhere in the system.
+Single-document processing is synchronous, so the upload boundary remains pending until the gateway returns the pipeline result. This provides an immediate processing summary but ties interaction time to parsing and assessment latency; batch grading therefore uses an asynchronous job and status-retrieval model.
+
+# Testing
+
+This section presents frontend test evidence for the release commit. Backend unit, load, and infrastructure tests are reported separately.
+
+## Frontend Unit Testing
+
+**[Insert Figure: Jest result from GitHub Actions]**
+
+The Jest suite completed 15 test suites and 144 tests without failure.
+
+## Frontend Security Scanning
+
+**[Insert Figure: Snyk scan before remediation, if vulnerabilities were identified]**
+
+**[Insert Figure: Snyk rescan after remediation]**
+
+**[Insert Figure: OWASP ZAP scan of the deployed frontend]**
+
+## Frontend Test Coverage
+
+**[Insert Figure: SonarCloud coverage result]**
+
+## Frontend End-to-End Testing
+
+**[Insert Figure: Playwright HTML report]**
+
+The Playwright run completed both Chromium scenarios without failure: unauthenticated-route protection and the student workflow from login and document upload to result inspection. The test uses the local Docker Compose stack with deterministic mock inference.
