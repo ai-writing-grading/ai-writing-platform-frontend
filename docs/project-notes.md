@@ -193,9 +193,9 @@ The Jest suite completed 15 test suites and 144 tests without failure.
 
 ## Frontend Security Scanning
 
-**[Insert Figure: Snyk scan before remediation, if vulnerabilities were identified]**
+**[Insert Figure: SonarCloud static analysis and security result]**
 
-**[Insert Figure: Snyk rescan after remediation]**
+**[Insert Figure: Snyk dependency vulnerability scan]**
 
 **[Insert Figure: OWASP ZAP scan of the deployed frontend]**
 
