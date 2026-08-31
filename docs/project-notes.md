@@ -208,5 +208,3 @@ The Jest suite completed 15 test suites and 144 tests without failure.
 **[Insert Figure: Playwright HTML report]**
 
 The Playwright suite completed 10 Chromium scenarios without failure against the local Docker Compose environment. It covers the main student workflow from login, document upload, processing, dashboard history, and result inspection, together with invalid-login feedback, registration verification-code format validation, dashboard access control, preference persistence, editor grading and refinement, upload button state, empty batch validation, and logout.
-
-The run uses a dedicated seeded local test account and deterministic mock inference, so no production database, paid AI provider, or real email delivery is involved. Playwright produces an HTML report; screenshots and traces are retained only for failed tests.
