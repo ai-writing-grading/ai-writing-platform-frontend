@@ -45,3 +45,5 @@ yarn-error.log*
 *.pem
 megalinter-reports/
 public/sw.js
+
+/docs/project-notes.md
